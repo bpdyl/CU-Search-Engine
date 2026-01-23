@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Coventry Research Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Admin Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-gear"></i> Administration</h2>
+            <div>
+                <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-outline-primary me-2">
+                    <i class="bi bi-clock-history"></i> Crawl History
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Crawler Section -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-globe"></i> Web Crawler</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">
+                            Crawl publications from Coventry University's PURE Portal.
+                        </p>
+                        <form action="{{ url_for('run_crawler') }}" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label">Maximum Authors to Crawl</label>
+                                <input type="number" class="form-control" name="max_authors"
+                                       value="20" min="1" max="100">
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-play"></i> Start Crawler
+                            </button>
+                        </form>
+                        <hr>
+                        <h6>Quick Actions</h6>
+                        <form action="{{ url_for('load_sample_data') }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-download"></i> Load Sample Data
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Crawl Schedule Section -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Crawl Schedule</h5>
+                        <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-sm btn-outline-secondary">
+                            View History
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if schedule_info %}
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <div class="h5 text-primary mb-0">{{ schedule_info.interval_display }}</div>
+                                <small class="text-muted">Crawl Interval</small>
+                            </div>
+                            <div class="col-6">
+                                <div class="h5 mb-0">
+                                    {% if schedule_info.enabled %}
+                                        <span class="text-success"><i class="bi bi-check-circle"></i> Active</span>
+                                    {% else %}
+                                        <span class="text-secondary"><i class="bi bi-pause-circle"></i> Paused</span>
+                                    {% endif %}
+                                </div>
+                                <small class="text-muted">Status</small>
+                            </div>
+                        </div>
+                        <hr>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2">
+                                <i class="bi bi-calendar-event text-primary"></i>
+                                <strong>Next Crawl:</strong>
+                                {% if schedule_info.is_overdue %}
+                                    <span class="text-warning">Overdue</span>
+                                {% else %}
+                                    {{ schedule_info.next_crawl_display }}
+                                {% endif %}
+                                <span class="badge bg-info ms-2">{{ schedule_info.time_until_next }}</span>
+                            </li>
+                            <li>
+                                <i class="bi bi-clock-history text-secondary"></i>
+                                <strong>Last Crawl:</strong> {{ schedule_info.last_crawl_display }}
+                            </li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Index Section -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-database"></i> Search Index</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">
+                            Manage the inverted index for search functionality.
+                        </p>
+                        <form action="{{ url_for('rebuild_index') }}" method="POST" class="mb-3">
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-arrow-repeat"></i> Rebuild Index
+                            </button>
+                        </form>
+
+                        {% if stats %}
+                        <hr>
+                        <h6>Current Index Stats</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-file-text"></i> Documents: <strong>{{ stats.total_documents }}</strong></li>
+                            <li><i class="bi bi-hash"></i> Unique Terms: <strong>{{ stats.total_terms }}</strong></li>
+                            <li><i class="bi bi-bar-chart"></i> Avg Doc Length: <strong>{{ stats.average_doc_length }}</strong></li>
+                            <li><i class="bi bi-calendar"></i> Last Updated:
+                                <strong>{{ stats.last_updated[:19] if stats.last_updated else 'Never' }}</strong>
+                            </li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classifier Section -->
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-cpu"></i> Document Classifier</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">
+                            Train and manage the Naive Bayes document classifier.
+                        </p>
+                        <form action="{{ url_for('train_classifier') }}" method="POST" class="mb-3">
+                            <button type="submit" class="btn btn-info text-white">
+                                <i class="bi bi-lightning"></i> Train Classifier
+                            </button>
+                        </form>
+
+                        {% if classifier_info %}
+                        <hr>
+                        <h6>Classifier Info</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle"></i> Status:
+                                {% if classifier_info.status == 'Model loaded' %}
+                                    <span class="badge bg-success">Ready</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Not Trained</span>
+                                {% endif %}
+                            </li>
+                            {% if classifier_info.accuracy is defined and classifier_info.accuracy != 'N/A' %}
+                            <li><i class="bi bi-graph-up"></i> Accuracy:
+                                <strong>{{ (classifier_info.accuracy * 100)|round(1) }}%</strong>
+                            </li>
+                            {% endif %}
+                            {% if classifier_info.total_samples is defined and classifier_info.total_samples != 'N/A' %}
+                            <li><i class="bi bi-collection"></i> Training Samples:
+                                <strong>{{ classifier_info.total_samples }}</strong>
+                            </li>
+                            {% endif %}
+                            <li><i class="bi bi-tags"></i> Categories:
+                                {% for cat in classifier_info.categories %}
+                                    <span class="badge bg-secondary">{{ cat }}</span>
+                                {% endfor %}
+                            </li>
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info Section -->
+            <div class="col-md-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> System Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Technology Stack</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="bi bi-code-slash"></i> Framework: <strong>Flask</strong></li>
+                                    <li><i class="bi bi-box"></i> Search Engine: <strong>TF-IDF / BM25</strong></li>
+                                    <li><i class="bi bi-cpu"></i> Classifier: <strong>Multinomial Naive Bayes</strong></li>
+                                    <li><i class="bi bi-translate"></i> NLP: <strong>NLTK (Porter Stemmer, WordNet)</strong></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Data Files</h6>
+                                <ul class="list-unstyled small">
+                                    <li><code>data/publications.json</code> - Crawled publication data</li>
+                                    <li><code>data/index.pkl</code> - Inverted search index</li>
+                                    <li><code>data/classifier_model.pkl</code> - Trained classifier model</li>
+                                    <li><code>data/crawl_history.json</code> - Crawl history records</li>
+                                    <li><code>data/crawl_schedule.json</code> - Schedule configuration</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Crawler Log -->
+        {% if crawler_log %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-terminal"></i> Crawler Log</h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ crawler_log }}</pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

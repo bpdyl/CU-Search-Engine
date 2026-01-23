@@ -1,0 +1,20 @@
+# Web Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Web Crawling
+selenium==4.16.0
+webdriver-manager==4.0.1
+beautifulsoup4==4.12.2
+requests==2.31.0
+lxml==4.9.4
+
+# NLP and Text Processing
+nltk==3.8.1
+
+# Machine Learning
+scikit-learn==1.3.2
+numpy==1.26.2
+
+# Utilities
+python-dateutil==2.8.2

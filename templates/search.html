@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results - Coventry Research Search{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <!-- Search Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form action="{{ url_for('search') }}" method="GET">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control form-control-lg" name="q"
+                               value="{{ query }}" placeholder="Search publications...">
+                        <button class="btn btn-primary px-4" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        {% if query %}
+            {% if results %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="text-muted mb-0">
+                        Found {{ results|length }} results for "{{ query }}"
+                    </h5>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown">
+                            Sort by Relevance
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item active" href="#">Relevance</a></li>
+                            <li><a class="dropdown-item" href="#">Year (Newest)</a></li>
+                            <li><a class="dropdown-item" href="#">Year (Oldest)</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Results List -->
+                <div class="results-list">
+                    {% for result in results %}
+                    <div class="card mb-3 result-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <!-- Title -->
+                                    <h5 class="card-title mb-2">
+                                        {% if result.publication_link %}
+                                            <a href="{{ result.publication_link }}" target="_blank"
+                                               class="text-decoration-none">
+                                                {{ result.title }}
+                                                <i class="bi bi-box-arrow-up-right small"></i>
+                                            </a>
+                                        {% else %}
+                                            {{ result.title }}
+                                        {% endif %}
+                                    </h5>
+
+                                    <!-- Authors -->
+                                    <p class="mb-2">
+                                        <i class="bi bi-people text-muted"></i>
+                                        {% for author in result.authors %}
+                                            {% if result.author_profiles and author in result.author_profiles %}
+                                                <a href="{{ result.author_profiles[author] }}"
+                                                   target="_blank" class="text-success">
+                                                    {{ author }}</a>{% if not loop.last %}, {% endif %}
+                                            {% else %}
+                                                {{ author }}{% if not loop.last %}, {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </p>
+
+                                    <!-- Year and Abstract -->
+                                    <p class="mb-2">
+                                        <span class="badge bg-secondary">{{ result.year }}</span>
+                                        {% if result.keywords %}
+                                            {% for kw in result.keywords[:3] %}
+                                                <span class="badge bg-light text-dark">{{ kw }}</span>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </p>
+
+                                    {% if result.abstract %}
+                                    <p class="card-text text-muted small">
+                                        {{ result.abstract[:300] }}{% if result.abstract|length > 300 %}...{% endif %}
+                                    </p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Score Badge -->
+                                <div class="text-end ms-3">
+                                    <span class="badge bg-primary" title="Relevance Score">
+                                        {{ "%.2f"|format(result.score) }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Links -->
+                            <div class="mt-3 pt-2 border-top">
+                                {% if result.publication_link %}
+                                    <a href="{{ result.publication_link }}" target="_blank"
+                                       class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="bi bi-file-text"></i> View Publication
+                                    </a>
+                                {% endif %}
+                                {% if result.author_profiles %}
+                                    <div class="dropdown d-inline">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                                                type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-person"></i> Author Profiles
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            {% for author, url in result.author_profiles.items() %}
+                                                <li>
+                                                    <a class="dropdown-item" href="{{ url }}" target="_blank">
+                                                        {{ author }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- No Results -->
+                <div class="text-center py-5">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h4 class="mt-3">No results found</h4>
+                    <p class="text-muted">
+                        No publications match your search for "{{ query }}".
+                    </p>
+                    <p class="text-muted">
+                        Try different keywords or check your spelling.
+                    </p>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- No Query -->
+            <div class="text-center py-5">
+                <i class="bi bi-journals display-1 text-muted"></i>
+                <h4 class="mt-3">Start Searching</h4>
+                <p class="text-muted">
+                    Enter a search query to find publications.
+                </p>
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Try searching for:
+                        <a href="{{ url_for('search', q='deep learning') }}">deep learning</a>,
+                        <a href="{{ url_for('search', q='healthcare') }}">healthcare</a>,
+                        <a href="{{ url_for('search', q='optimization') }}">optimization</a>
+                    </small>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

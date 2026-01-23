@@ -1,0 +1,121 @@
+[
+  {
+    "id": "crawl_20260110_091404",
+    "started_at": "2026-01-10T09:14:04.777216",
+    "completed_at": "2026-01-10T09:18:00.777216",
+    "duration_seconds": 236,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 46,
+      "publications_found": 142,
+      "new_publications": 142,
+      "updated_publications": 0,
+      "pages_visited": 145
+    },
+    "errors": [],
+    "trigger": "initial",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260112_091404",
+    "started_at": "2026-01-12T09:14:04.777216",
+    "completed_at": "2026-01-12T09:18:50.777216",
+    "duration_seconds": 286,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 45,
+      "publications_found": 145,
+      "new_publications": 4,
+      "updated_publications": 6,
+      "pages_visited": 149
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260114_091404",
+    "started_at": "2026-01-14T09:14:04.777216",
+    "completed_at": "2026-01-14T09:17:57.777216",
+    "duration_seconds": 233,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 45,
+      "publications_found": 146,
+      "new_publications": 0,
+      "updated_publications": 3,
+      "pages_visited": 146
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260116_091404",
+    "started_at": "2026-01-16T09:14:04.777216",
+    "completed_at": "2026-01-16T09:19:27.777216",
+    "duration_seconds": 323,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 46,
+      "publications_found": 148,
+      "new_publications": 4,
+      "updated_publications": 7,
+      "pages_visited": 147
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260118_091404",
+    "started_at": "2026-01-18T09:14:04.777216",
+    "completed_at": "2026-01-18T09:18:12.777216",
+    "duration_seconds": 248,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 47,
+      "publications_found": 154,
+      "new_publications": 1,
+      "updated_publications": 4,
+      "pages_visited": 149
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260120_091404",
+    "started_at": "2026-01-20T09:14:04.777216",
+    "completed_at": "2026-01-20T09:17:23.777216",
+    "duration_seconds": 199,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 45,
+      "publications_found": 157,
+      "new_publications": 1,
+      "updated_publications": 3,
+      "pages_visited": 149
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260122_091404",
+    "started_at": "2026-01-22T09:14:04.777216",
+    "completed_at": "2026-01-22T09:20:47.777216",
+    "duration_seconds": 403,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 47,
+      "publications_found": 160,
+      "new_publications": 2,
+      "updated_publications": 2,
+      "pages_visited": 151
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  }
+]

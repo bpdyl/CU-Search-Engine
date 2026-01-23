@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Document Classification - Coventry Research Search{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <h2><i class="bi bi-tags text-primary"></i> Document Classification</h2>
+            <p class="text-muted">
+                Classify documents into Business, Entertainment, or Health categories using Naive Bayes
+            </p>
+        </div>
+
+        <!-- Classification Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-file-text"></i> Enter Text to Classify</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('classify') }}" method="POST">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="text" rows="6"
+                                  placeholder="Paste or type your document text here...">{{ text if text else '' }}</textarea>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-cpu"></i> Classify Document
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="loadSampleText()">
+                            <i class="bi bi-lightning"></i> Load Sample
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Classification Result -->
+        {% if result %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Classification Result</h5>
+            </div>
+            <div class="card-body">
+                {% if result.error %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle"></i> {{ result.error }}
+                    </div>
+                {% else %}
+                    <!-- Predicted Category -->
+                    <div class="text-center mb-4">
+                        <h6 class="text-muted mb-2">Predicted Category</h6>
+                        <div class="display-4">
+                            {% if result.category == 'Business' %}
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-briefcase"></i> Business
+                                </span>
+                            {% elif result.category == 'Entertainment' %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-film"></i> Entertainment
+                                </span>
+                            {% elif result.category == 'Health' %}
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-heart-pulse"></i> Health
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ result.category }}</span>
+                            {% endif %}
+                        </div>
+                        <p class="mt-2 text-muted">
+                            Confidence: <strong>{{ (result.confidence * 100)|round(1) }}%</strong>
+                        </p>
+                    </div>
+
+                    <!-- Probability Distribution -->
+                    <h6 class="mb-3">Probability Distribution</h6>
+                    {% for category, prob in result.probabilities.items() %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>
+                                {% if category == 'Business' %}
+                                    <i class="bi bi-briefcase text-primary"></i>
+                                {% elif category == 'Entertainment' %}
+                                    <i class="bi bi-film text-success"></i>
+                                {% elif category == 'Health' %}
+                                    <i class="bi bi-heart-pulse text-danger"></i>
+                                {% endif %}
+                                {{ category }}
+                            </span>
+                            <span>{{ (prob * 100)|round(1) }}%</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar
+                                {% if category == 'Business' %}bg-primary
+                                {% elif category == 'Entertainment' %}bg-success
+                                {% elif category == 'Health' %}bg-danger
+                                {% endif %}"
+                                 style="width: {{ prob * 100 }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <!-- Text Preview -->
+                    {% if result.text_preview %}
+                    <div class="mt-4">
+                        <h6>Analyzed Text</h6>
+                        <div class="bg-light p-3 rounded">
+                            <small class="text-muted">{{ result.text_preview }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Model Information -->
+        {% if model_info %}
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Model Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><strong>Status:</strong>
+                                {% if model_info.status == 'Model loaded' %}
+                                    <span class="badge bg-success">Ready</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Not Loaded</span>
+                                {% endif %}
+                            </li>
+                            <li><strong>Algorithm:</strong> Multinomial Naive Bayes</li>
+                            <li><strong>Categories:</strong>
+                                {% for cat in model_info.categories %}
+                                    <span class="badge bg-secondary">{{ cat }}</span>
+                                {% endfor %}
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li><strong>Training Accuracy:</strong>
+                                {% if model_info.accuracy is defined and model_info.accuracy != 'N/A' %}
+                                    {{ (model_info.accuracy * 100)|round(1) }}%
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </li>
+                            <li><strong>Training Samples:</strong> {{ model_info.total_samples if model_info.total_samples is defined else 'N/A' }}</li>
+                            <li><strong>Trained:</strong>
+                                {% if model_info.trained_at is defined and model_info.trained_at != 'N/A' %}
+                                    {{ model_info.trained_at[:10] }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function loadSampleText() {
+    const samples = [
+        "The Federal Reserve announced a quarter-point interest rate increase today, citing concerns about inflation. Stock markets reacted positively with the Dow Jones Industrial Average gaining 200 points. Economists predict this will impact mortgage rates and consumer lending in the coming months.",
+        "The new blockbuster superhero movie shattered box office records this weekend, earning over $300 million globally. Critics praised the stunning visual effects and compelling storyline. The film's director announced plans for a sequel to be released next summer.",
+        "Researchers at the medical center published groundbreaking findings on a new cancer treatment. Clinical trials showed a 60% improvement in patient outcomes compared to traditional therapies. The FDA is expected to review the treatment for approval early next year."
+    ];
+    document.querySelector('textarea[name="text"]').value = samples[Math.floor(Math.random() * samples.length)];
+}
+</script>
+{% endblock %}

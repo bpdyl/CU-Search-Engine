@@ -1,0 +1,174 @@
+/* Custom styles for Coventry Research Search Engine */
+
+/* General */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: 600;
+}
+
+/* Cards */
+.card {
+    border-radius: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Search Result Cards */
+.result-card {
+    border-left: 4px solid #0d6efd;
+}
+
+.result-card:hover {
+    border-left-color: #0a58ca;
+}
+
+.result-card .card-title a {
+    color: #0d6efd;
+}
+
+.result-card .card-title a:hover {
+    color: #0a58ca;
+}
+
+/* Feature Icons */
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+}
+
+/* Progress Bars */
+.progress {
+    border-radius: 10px;
+}
+
+.progress-bar {
+    border-radius: 10px;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid #dee2e6;
+}
+
+/* Search Page */
+.results-list .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.results-list .card:hover {
+    transform: translateY(-2px);
+}
+
+/* Classification Page */
+.display-4 .badge {
+    font-size: 1.5rem;
+    padding: 0.75rem 1.5rem;
+}
+
+/* Admin Page */
+pre {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .display-5 {
+        font-size: 1.5rem;
+    }
+
+    .display-6 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Loading animation */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Highlight matched text */
+mark {
+    background-color: #fff3cd;
+    padding: 0.1em 0.2em;
+    border-radius: 3px;
+}
+
+/* Author links */
+a.text-success {
+    text-decoration: none;
+}
+
+a.text-success:hover {
+    text-decoration: underline;
+}
+
+/* Dropdown improvements */
+.dropdown-menu {
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Alert improvements */
+.alert {
+    border-radius: 8px;
+}
+
+/* Button improvements */
+.btn {
+    border-radius: 6px;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0a58ca;
+    border-color: #0a58ca;
+}
+
+/* Table improvements */
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+/* Input group improvements */
+.input-group-lg .form-control {
+    border-radius: 8px;
+}
+
+.input-group-lg .input-group-text {
+    border-radius: 8px 0 0 8px;
+}
+
+.input-group-lg .btn {
+    border-radius: 0 8px 8px 0;
+}

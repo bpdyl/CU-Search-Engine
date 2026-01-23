@@ -2,6 +2,8 @@
 Configuration settings for the Vertical Search Engine
 """
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Base directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,8 +43,8 @@ FLASK_HOST = '0.0.0.0'
 FLASK_PORT = 5000
 
 # Admin authentication
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'admin123'  # Change this in production!
+ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME')
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')  
 
 # Scheduler settings
 CRAWL_INTERVAL_DAYS = 2  # Crawl every 2 days

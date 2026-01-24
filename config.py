@@ -25,7 +25,7 @@ CRAWLER_MAX_AUTHORS = 50  # Maximum number of authors to crawl
 CRAWLER_TIMEOUT = 30  # Page load timeout in seconds
 
 # Search settings
-SEARCH_RESULTS_LIMIT = 100
+SEARCH_RESULTS_LIMIT = 1000
 FIELD_WEIGHTS = {
     'title': 3.0,
     'authors': 2.5,

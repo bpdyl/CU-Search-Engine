@@ -58,6 +58,20 @@ class PUREPortalCrawler:
         self.base_url = config.CRAWLER_BASE_URL
         self.robots_parser = RobotsParser(self.base_url)
 
+        # Detailed crawl metrics
+        self.crawl_metrics = {
+            'total_publications_found': 0,  # All pubs including duplicates
+            'unique_publications': 0,  # After deduplication
+            'duplicates_detected': 0,  # Number of duplicates skipped
+            'publications_per_author': {},  # {author_name: count}
+            'unique_publications_per_author': {},  # {author_name: count} after dedup
+            'duplicates_per_author': {},  # {author_name: count}
+            'publication_authors_map': {},  # {pub_title: [list of authors who have it]}
+            'co_authored_publications': 0,  # Publications with multiple authors in our dataset
+            'pages_crawled_per_author': {},  # {author_name: page_count}
+            'authors_per_publication': {},  # {pub_title: author_count}
+        }
+
     def log(self, message):
         """Log a message via callback or print."""
         if self.callback:
@@ -158,26 +172,54 @@ class PUREPortalCrawler:
             List of publication dictionaries
         """
         publications = []
+        author_total = 0  # Total publications found for this author
+        author_unique = 0  # Unique publications added for this author
+        author_duplicates = 0  # Duplicates detected for this author
 
         # Find publication containers - PURE uses various patterns
-        
+
         # pub_containers = soup.find_all(['li', 'div', 'article'],
-        #     class_=re.compile(r'result-container|portal-list-item|publication|research-output')) 
-        # commented out the code that was looking for various class name , instead we only go for div with class name 
+        #     class_=re.compile(r'result-container|portal-list-item|publication|research-output'))
+        # commented out the code that was looking for various class name , instead we only go for div with class name
         # "result-container"
         pub_containers = soup.find_all(['li', 'div', 'article'],
-            class_=re.compile(r'result-container')) 
+            class_=re.compile(r'result-container'))
 
         for container in pub_containers:
             try:
                 pub = self._parse_publication(container, author_name, profile_url)
                 if pub and pub.get('title'):
+                    author_total += 1
+                    self.crawl_metrics['total_publications_found'] += 1
+
+                    pub_title = pub['title'].lower().strip()
+
+                    # Track which authors have this publication
+                    if pub_title not in self.crawl_metrics['publication_authors_map']:
+                        self.crawl_metrics['publication_authors_map'][pub_title] = []
+                    if author_name not in self.crawl_metrics['publication_authors_map'][pub_title]:
+                        self.crawl_metrics['publication_authors_map'][pub_title].append(author_name)
+
                     # Check for duplicates
                     if not self._is_duplicate(pub):
                         publications.append(pub)
+                        author_unique += 1
+                    else:
+                        author_duplicates += 1
+                        self.crawl_metrics['duplicates_detected'] += 1
 
             except Exception as e:
                 continue
+
+        # Update per-author metrics
+        if author_name not in self.crawl_metrics['publications_per_author']:
+            self.crawl_metrics['publications_per_author'][author_name] = 0
+            self.crawl_metrics['unique_publications_per_author'][author_name] = 0
+            self.crawl_metrics['duplicates_per_author'][author_name] = 0
+
+        self.crawl_metrics['publications_per_author'][author_name] += author_total
+        self.crawl_metrics['unique_publications_per_author'][author_name] += author_unique
+        self.crawl_metrics['duplicates_per_author'][author_name] += author_duplicates
 
         return publications
 
@@ -323,6 +365,90 @@ class PUREPortalCrawler:
             if existing['publication_link'] and existing['publication_link'] == pub['publication_link']:
                 return True
         return False
+
+    def get_next_page_link(self, soup):
+        """
+        Extract the next page link from pagination.
+
+        Args:
+            soup: BeautifulSoup object of the current page
+
+        Returns:
+            URL of the next page or None if no next page exists
+        """
+        # Look for the next page link in pagination
+        # Pattern: <li class="next"><a href="..." class="nextLink">Next ›</a></li>
+        next_li = soup.find('li', class_='next')
+        if next_li:
+            next_link = next_li.find('a', class_='nextLink')
+            if next_link and next_link.get('href'):
+                return urljoin(self.base_url, next_link.get('href'))
+
+        # Alternative pattern: look for any next link
+        next_link = soup.find('a', class_='nextLink')
+        if next_link and next_link.get('href'):
+            return urljoin(self.base_url, next_link.get('href'))
+
+        # Another pattern: look for aria-label containing "Next"
+        next_link = soup.find('a', attrs={'aria-label': re.compile(r'Next', re.IGNORECASE)})
+        if next_link and next_link.get('href'):
+            return urljoin(self.base_url, next_link.get('href'))
+
+        return None
+
+    def crawl_all_author_publications(self, author_name, profile_url, max_pages=10):
+        """
+        Crawl all publications from an author's profile, handling pagination.
+
+        Args:
+            author_name: Name of the author
+            profile_url: URL of the author's profile
+            max_pages: Maximum number of pages to crawl per author (safety limit)
+
+        Returns:
+            List of publication dictionaries
+        """
+        all_publications = []
+        current_url = profile_url
+        page_num = 1
+
+        while current_url and page_num <= max_pages:
+            self.log(f"    Page {page_num}: {current_url}")
+
+            # Get the page
+            soup = self.get_page(current_url)
+            if not soup:
+                break
+
+            # Extract publications from current page
+            pubs = self.extract_publications_from_profile(soup, author_name, profile_url)
+
+            # Track pages per author
+            self.crawl_metrics['pages_crawled_per_author'][author_name] = page_num
+
+            if pubs:
+                all_publications.extend(pubs)
+                self.log(f"    Found {len(pubs)} unique publications on page {page_num}")
+            else:
+                # No publications found, might be end of list
+                if page_num == 1:
+                    self.log("    No publications found on profile page")
+                break
+
+            # Check for next page
+            next_page_url = self.get_next_page_link(soup)
+
+            if next_page_url and next_page_url != current_url:
+                current_url = next_page_url
+                page_num += 1
+            else:
+                # No more pages
+                break
+
+        if page_num > 1:
+            self.log(f"    Total: {len(all_publications)} publications across {page_num} pages")
+
+        return all_publications
     
     def wait_for_page_load(self, timeout=10):
         """Wait for page to fully load."""
@@ -468,8 +594,9 @@ class PUREPortalCrawler:
             author_profiles = self.extract_author_profiles(soup)
             self.log(f"Found {len(author_profiles)} author profiles")
 
-            # Step 2: Crawl each author's publications
+            # Step 2: Crawl each author's publications (with pagination support)
             for idx, (author_name, profile_url) in enumerate(author_profiles[:max_authors], 1):
+                profile_url = profile_url+'/publications'
                 self.log(f"\n[{idx}/{min(len(author_profiles), max_authors)}] Crawling: {author_name}")
                 self.log(f"  Profile: {profile_url}")
 
@@ -479,35 +606,84 @@ class PUREPortalCrawler:
 
                 self.visited_urls.add(profile_url)
 
-                # Get profile page
-                profile_soup = self.get_page(profile_url)
-                if not profile_soup:
-                    continue
-
-                # Extract publications
-                pubs = self.extract_publications_from_profile(
-                    profile_soup, author_name, profile_url
-                )
+                # Extract all publications with pagination support
+                pubs = self.crawl_all_author_publications(author_name, profile_url)
 
                 if pubs:
                     self.publications.extend(pubs)
-                    self.log(f"  Found {len(pubs)} publications")
+                    self.log(f"  Total found: {len(pubs)} publications")
                 else:
                     self.log("  No publications found")
 
                 # Store author profile info
                 self.author_profiles[author_name] = profile_url
 
-            self.log("\n" + "=" * 60)
-            self.log(f"Crawling completed!")
-            self.log(f"Total unique publications: {len(self.publications)}")
-            self.log(f"Total authors crawled: {len(self.author_profiles)}")
-            self.log("=" * 60)
+            # Finalize metrics
+            self._finalize_crawl_metrics()
+
+            # Log detailed summary
+            self._log_crawl_summary()
 
             return self.publications
 
         finally:
             self.close_driver()
+
+    def _finalize_crawl_metrics(self):
+        """Calculate final metrics after crawl completes."""
+        self.crawl_metrics['unique_publications'] = len(self.publications)
+
+        # Calculate co-authored publications (pubs that appear for multiple authors in our crawl)
+        co_authored = 0
+        for pub_title, authors in self.crawl_metrics['publication_authors_map'].items():
+            author_count = len(authors)
+            self.crawl_metrics['authors_per_publication'][pub_title] = author_count
+            if author_count > 1:
+                co_authored += 1
+
+        self.crawl_metrics['co_authored_publications'] = co_authored
+
+    def _log_crawl_summary(self):
+        """Log a detailed summary of the crawl."""
+        self.log("\n" + "=" * 60)
+        self.log("CRAWL SUMMARY")
+        self.log("=" * 60)
+
+        self.log(f"\n📊 OVERALL METRICS:")
+        self.log(f"   Total publications found (raw): {self.crawl_metrics['total_publications_found']}")
+        self.log(f"   Unique publications indexed: {self.crawl_metrics['unique_publications']}")
+        self.log(f"   Duplicates detected & skipped: {self.crawl_metrics['duplicates_detected']}")
+        self.log(f"   Co-authored publications: {self.crawl_metrics['co_authored_publications']}")
+        self.log(f"   Authors crawled: {len(self.author_profiles)}")
+
+        self.log(f"\n📝 PER-AUTHOR BREAKDOWN:")
+        for author in sorted(self.crawl_metrics['publications_per_author'].keys()):
+            total = self.crawl_metrics['publications_per_author'].get(author, 0)
+            unique = self.crawl_metrics['unique_publications_per_author'].get(author, 0)
+            dups = self.crawl_metrics['duplicates_per_author'].get(author, 0)
+            pages = self.crawl_metrics['pages_crawled_per_author'].get(author, 1)
+            self.log(f"   {author}:")
+            self.log(f"      Total found: {total} | Unique added: {unique} | Duplicates: {dups} | Pages: {pages}")
+
+        # Top co-authored publications
+        co_authored_pubs = [(title, len(authors)) for title, authors in
+                           self.crawl_metrics['publication_authors_map'].items() if len(authors) > 1]
+        if co_authored_pubs:
+            co_authored_pubs.sort(key=lambda x: -x[1])
+            self.log(f"\n🤝 TOP CO-AUTHORED PUBLICATIONS (in our dataset):")
+            for title, count in co_authored_pubs[:5]:
+                self.log(f"   - [{count} authors] {title[:60]}...")
+
+        self.log("\n" + "=" * 60)
+
+    def get_crawl_metrics(self):
+        """
+        Get the crawl metrics dictionary.
+
+        Returns:
+            Dictionary containing all crawl metrics
+        """
+        return self.crawl_metrics
     def save_data(self, filepath=None):
         """
         Save crawled data to JSON file.

@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Crawl Summary - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin') }}">Admin</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin_crawl_history') }}">Crawl History</a></li>
+                    <li class="breadcrumb-item active">Detailed Summary</li>
+                </ol>
+            </nav>
+            <h2><i class="bi bi-graph-up"></i> Crawl Summary & Metrics</h2>
+            <p class="text-muted">Detailed analysis of crawl sessions including publication statistics and co-authorship data.</p>
+        </div>
+    </div>
+
+    <!-- Aggregate Statistics -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Aggregate Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-2 col-6 mb-3">
+                            <h3 class="text-primary mb-0">{{ aggregate.total_crawls }}</h3>
+                            <small class="text-muted">Total Crawls</small>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <h3 class="text-success mb-0">{{ aggregate.total_publications_crawled }}</h3>
+                            <small class="text-muted">Total Publications Found</small>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <h3 class="text-info mb-0">{{ aggregate.total_unique_publications }}</h3>
+                            <small class="text-muted">Unique Publications</small>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <h3 class="text-warning mb-0">{{ aggregate.total_duplicates_detected }}</h3>
+                            <small class="text-muted">Duplicates Detected</small>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <h3 class="text-secondary mb-0">{{ aggregate.average_crawl_duration_formatted }}</h3>
+                            <small class="text-muted">Avg Duration</small>
+                        </div>
+                        <div class="col-md-2 col-6 mb-3">
+                            <h3 class="text-success mb-0">{{ aggregate.success_rate }}%</h3>
+                            <small class="text-muted">Success Rate</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if latest %}
+    <!-- Latest Crawl Details -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Latest Crawl Details</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Overall Metrics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border rounded p-3 text-center h-100">
+                                <h4 class="text-primary mb-1">{{ latest.overall_metrics.total_publications_found }}</h4>
+                                <small class="text-muted">Total Found (Raw)</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border rounded p-3 text-center h-100">
+                                <h4 class="text-success mb-1">{{ latest.overall_metrics.unique_publications_indexed }}</h4>
+                                <small class="text-muted">Unique Indexed</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border rounded p-3 text-center h-100">
+                                <h4 class="text-warning mb-1">{{ latest.overall_metrics.duplicates_detected }}</h4>
+                                <small class="text-muted">Duplicates Skipped</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3">
+                            <div class="border rounded p-3 text-center h-100">
+                                <h4 class="text-info mb-1">{{ latest.overall_metrics.co_authored_publications }}</h4>
+                                <small class="text-muted">Co-Authored Pubs</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p><strong>Started:</strong> {{ latest.started_at }}</p>
+                            <p><strong>Duration:</strong> {{ latest.duration_formatted }}</p>
+                            <p><strong>Status:</strong>
+                                {% if latest.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif latest.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% else %}
+                                    <span class="badge bg-warning">{{ latest.status }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Authors Crawled:</strong> {{ latest.overall_metrics.total_authors_crawled }}</p>
+                            <p><strong>Pages Crawled:</strong> {{ latest.overall_metrics.total_pages_crawled }}</p>
+                            <p><strong>Deduplication Rate:</strong> {{ latest.overall_metrics.deduplication_rate }}%</p>
+                        </div>
+                    </div>
+
+                    <!-- Per-Author Breakdown -->
+                    {% if latest.author_summaries %}
+                    <h6 class="mt-4 mb-3"><i class="bi bi-people-fill"></i> Per-Author Breakdown</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead class="table">
+                                <tr>
+                                    <th>Author</th>
+                                    <th class="text-center">Total Found</th>
+                                    <th class="text-center">Unique Added</th>
+                                    <th class="text-center">Duplicates</th>
+                                    <th class="text-center">Pages Crawled</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for author in latest.author_summaries %}
+                                <tr>
+                                    <td>{{ author.name }}</td>
+                                    <td class="text-center">{{ author.total_publications_found }}</td>
+                                    <td class="text-center text-success">{{ author.unique_publications_added }}</td>
+                                    <td class="text-center text-warning">{{ author.duplicates_skipped }}</td>
+                                    <td class="text-center">{{ author.pages_crawled }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    <!-- Co-Authored Publications -->
+                    {% if latest.co_authorship_analysis.publications %}
+                    <h6 class="mt-4 mb-3"><i class="bi bi-diagram-3-fill"></i> Co-Authored Publications (Shared by Multiple Authors in Dataset)</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead class="table-secondary">
+                                <tr>
+                                    <th>Publication Title</th>
+                                    <th class="text-center">Authors</th>
+                                    <th>Shared By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pub in latest.co_authorship_analysis.publications[:10] %}
+                                <tr>
+                                    <td>{{ pub.title[:80] }}{% if pub.title|length > 80 %}...{% endif %}</td>
+                                    <td class="text-center"><span class="badge bg-info">{{ pub.author_count }}</span></td>
+                                    <td>
+                                        {% for author in pub.shared_by_authors[:3] %}
+                                            <small class="text-muted">{{ author }}{% if not loop.last %}, {% endif %}</small>
+                                        {% endfor %}
+                                        {% if pub.shared_by_authors|length > 3 %}
+                                            <small class="text-muted">+{{ pub.shared_by_authors|length - 3 }} more</small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    <!-- Statistics -->
+                    {% if latest.statistics %}
+                    <h6 class="mt-4 mb-3"><i class="bi bi-calculator"></i> Statistics</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Avg Publications per Author:</strong> {{ latest.statistics.avg_publications_per_author }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Avg Unique per Author:</strong> {{ latest.statistics.avg_unique_per_author }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Avg Pages per Author:</strong> {{ latest.statistics.avg_pages_per_author }}</p>
+                        </div>
+                    </div>
+                    {% if latest.statistics.most_prolific_author %}
+                    <p><strong>Most Prolific Author:</strong> {{ latest.statistics.most_prolific_author.name }}
+                        ({{ latest.statistics.most_prolific_author.total_publications_found }} publications)</p>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Crawl Summaries -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> Recent Crawl Summaries</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_summaries %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Trigger</th>
+                                    <th class="text-center">Total Found</th>
+                                    <th class="text-center">Unique</th>
+                                    <th class="text-center">Duplicates</th>
+                                    <th class="text-center">Authors</th>
+                                    <th>Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for summary in recent_summaries %}
+                                <tr>
+                                    <td>
+                                        <small>{{ summary.started_at[:19] }}</small>
+                                    </td>
+                                    <td>
+                                        {% if summary.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif summary.status == 'failed' %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">{{ summary.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if summary.trigger == 'manual' %}
+                                            <span class="badge bg-primary">Manual</span>
+                                        {% else %}
+                                            <span class="badge bg-info">Scheduled</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">{{ summary.overall_metrics.total_publications_found }}</td>
+                                    <td class="text-center text-success">{{ summary.overall_metrics.unique_publications_indexed }}</td>
+                                    <td class="text-center text-warning">{{ summary.overall_metrics.duplicates_detected }}</td>
+                                    <td class="text-center">{{ summary.overall_metrics.total_authors_crawled }}</td>
+                                    <td>{{ summary.duration_formatted }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> No crawl summaries available yet. Run the crawler to generate detailed summaries.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{{ url_for('admin') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Admin
+            </a>
+            <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-outline-primary">
+                <i class="bi bi-clock-history"></i> View Crawl History
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

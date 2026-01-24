@@ -117,5 +117,38 @@
     "errors": [],
     "trigger": "scheduled",
     "index_updated": true
+  },
+  {
+    "id": "crawl_20260124_144910",
+    "started_at": "2026-01-24T14:49:10.567098",
+    "completed_at": "2026-01-24T14:49:43.238187",
+    "duration_seconds": 32,
+    "status": "completed_with_warnings",
+    "statistics": {
+      "authors_crawled": 0,
+      "publications_found": 0
+    },
+    "errors": [
+      "No publications found"
+    ],
+    "trigger": "manual",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260124_145042",
+    "started_at": "2026-01-24T14:50:42.329020",
+    "completed_at": "2026-01-24T15:39:41.551755",
+    "duration_seconds": 2939,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 47,
+      "publications_found": 368,
+      "unique_publications": 291,
+      "duplicates_detected": 77,
+      "pages_visited": 47
+    },
+    "errors": [],
+    "trigger": "manual",
+    "index_updated": true
   }
 ]

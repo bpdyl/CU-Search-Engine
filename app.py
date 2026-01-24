@@ -6,6 +6,7 @@ Research Centre for Computational Science and Mathematical Modelling.
 """
 import os
 import json
+from datetime import datetime
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
@@ -18,6 +19,7 @@ from classifier.trainer import ClassifierTrainer, save_sample_training_data
 from classifier.predictor import DocumentClassifier
 from scheduler.crawl_scheduler import get_scheduler
 from scheduler.crawl_history import CrawlHistory
+from scheduler.crawl_summary import get_crawl_summary
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -29,6 +31,7 @@ query_processor = None
 classifier = DocumentClassifier()
 crawl_scheduler = get_scheduler()
 crawl_history = CrawlHistory()
+crawl_summary = get_crawl_summary()
 
 # Crawler log storage
 crawler_log = []
@@ -251,11 +254,19 @@ def run_crawler():
     max_authors = int(request.form.get('max_authors', 20))
     crawler_log = []
 
+    # Track crawl timing
+    started_at = datetime.now()
+    crawl_status = "completed"
+    crawl_errors = []
+    crawler = None
+
     try:
         flash('Crawler started. This may take several minutes...', 'info')
 
         crawler = PUREPortalCrawler(callback=log_message)
         publications = crawler.crawl(max_authors=max_authors)
+
+        completed_at = datetime.now()
 
         if publications:
             # Save crawled data
@@ -268,11 +279,90 @@ def run_crawler():
             # Reinitialize query processor
             query_processor = QueryProcessor(inverted_index)
 
-            flash(f'Successfully crawled {len(publications)} publications!', 'success')
+            # Get detailed metrics from crawler
+            crawl_metrics = crawler.get_crawl_metrics()
+
+            # Record crawl in history (basic)
+            crawl_stats = {
+                "authors_crawled": len(crawler.author_profiles),
+                "publications_found": crawl_metrics.get('total_publications_found', len(publications)),
+                "unique_publications": crawl_metrics.get('unique_publications', len(publications)),
+                "duplicates_detected": crawl_metrics.get('duplicates_detected', 0),
+                "pages_visited": len(crawler.visited_urls)
+            }
+            crawl_history.create_crawl_record(
+                started_at=started_at,
+                completed_at=completed_at,
+                stats=crawl_stats,
+                status=crawl_status,
+                errors=crawl_errors,
+                trigger="manual"
+            )
+
+            # Save detailed crawl summary
+            crawl_summary.create_summary(
+                started_at=started_at,
+                completed_at=completed_at,
+                status=crawl_status,
+                trigger="manual",
+                crawl_metrics=crawl_metrics,
+                errors=crawl_errors
+            )
+
+            flash(f'Successfully crawled {len(publications)} unique publications '
+                  f'({crawl_metrics.get("duplicates_detected", 0)} duplicates skipped)!', 'success')
         else:
+            completed_at = datetime.now()
+            # Get metrics even for empty crawl
+            crawl_metrics = crawler.get_crawl_metrics() if crawler else {}
+
+            # Record failed/empty crawl
+            crawl_history.create_crawl_record(
+                started_at=started_at,
+                completed_at=completed_at,
+                stats={"authors_crawled": 0, "publications_found": 0},
+                status="completed_with_warnings",
+                errors=["No publications found"],
+                trigger="manual"
+            )
+
+            # Save summary for empty crawl
+            crawl_summary.create_summary(
+                started_at=started_at,
+                completed_at=completed_at,
+                status="completed_with_warnings",
+                trigger="manual",
+                crawl_metrics=crawl_metrics,
+                errors=["No publications found"]
+            )
+
             flash('Crawler completed but no publications found.', 'warning')
 
     except Exception as e:
+        completed_at = datetime.now()
+        # Get metrics if crawler was initialized
+        crawl_metrics = crawler.get_crawl_metrics() if crawler else {}
+
+        # Record failed crawl
+        crawl_history.create_crawl_record(
+            started_at=started_at,
+            completed_at=completed_at,
+            stats={},
+            status="failed",
+            errors=[str(e)],
+            trigger="manual"
+        )
+
+        # Save summary for failed crawl
+        crawl_summary.create_summary(
+            started_at=started_at,
+            completed_at=completed_at,
+            status="failed",
+            trigger="manual",
+            crawl_metrics=crawl_metrics,
+            errors=[str(e)]
+        )
+
         flash(f'Crawler error: {str(e)}', 'danger')
 
     return redirect(url_for('admin'))
@@ -404,6 +494,44 @@ def api_stats():
         'classifier': classifier.get_model_info(),
         'schedule': crawl_scheduler.get_schedule_info()
     })
+
+
+@app.route('/api/crawl-summary')
+@admin_required
+def api_crawl_summary():
+    """API endpoint for detailed crawl summaries (admin only)."""
+    count = int(request.args.get('count', 10))
+    summaries = crawl_summary.get_recent_summaries(count)
+    aggregate = crawl_summary.get_aggregate_statistics()
+
+    return jsonify({
+        'recent_summaries': summaries,
+        'aggregate_statistics': aggregate
+    })
+
+
+@app.route('/api/crawl-summary/<summary_id>')
+@admin_required
+def api_crawl_summary_detail(summary_id):
+    """API endpoint for a specific crawl summary (admin only)."""
+    summary = crawl_summary.get_summary_by_id(summary_id)
+    if summary:
+        return jsonify(summary)
+    return jsonify({'error': 'Summary not found'}), 404
+
+
+@app.route('/admin/crawl-summary')
+@admin_required
+def admin_crawl_summary():
+    """Detailed crawl summary page."""
+    recent = crawl_summary.get_recent_summaries(10)
+    aggregate = crawl_summary.get_aggregate_statistics()
+    latest = crawl_summary.get_latest_summary()
+
+    return render_template('crawl_summary.html',
+                         recent_summaries=recent,
+                         aggregate=aggregate,
+                         latest=latest)
 
 
 # ============ Error Handlers ============

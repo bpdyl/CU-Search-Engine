@@ -3,124 +3,118 @@
 {% block title %}Coventry Research Search - Home{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <!-- Hero Section -->
-        <div class="text-center py-5">
-            <h1 class="display-4 mb-3">
-                <i class="bi bi-mortarboard-fill text-primary"></i>
-            </h1>
-            <h2 class="display-5 mb-3">Coventry University Research Search</h2>
-            <p class="lead text-muted">
-                Search publications from the Research Centre for Computational Science and Mathematical Modelling
+<!-- Hero Section -->
+<div class="hero-section fade-in">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">
+        <i class="bi bi-mortarboard-fill" style="color: var(--primary-color);"></i>
+    </div>
+    <h1 class="hero-title">Coventry University Research Search</h1>
+    <p class="hero-subtitle">
+        Search publications from the Research Centre for Computational Science and Mathematical Modelling
+    </p>
+
+    <!-- Search Form -->
+    <div class="hero-search">
+        <form action="{{ url_for('search') }}" method="GET">
+            <div class="search-input-group">
+                <input type="text" name="q"
+                       placeholder="Search publications, authors, keywords..."
+                       autofocus>
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+        <div class="mt-3" style="color: var(--text-muted); font-size: 0.9rem;">
+            Try:
+            <a href="{{ url_for('search', q='machine learning') }}">machine learning</a>,
+            <a href="{{ url_for('search', q='neural networks') }}">neural networks</a>,
+            <a href="{{ url_for('search', q='2024') }}">2024</a>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row" style="max-width: 1000px; margin: 2rem auto;">
+    <div class="col-12 col-md-4">
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div class="stat-icon primary" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.5rem;">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Academic Search</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Search through publications using advanced TF-IDF and BM25 ranking algorithms.
             </p>
         </div>
-
-        <!-- Search Form -->
-        <div class="card shadow-sm mb-5">
-            <div class="card-body p-4">
-                <form action="{{ url_for('search') }}" method="GET">
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-white">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" class="form-control" name="q"
-                               placeholder="Search publications, authors, keywords..."
-                               autofocus>
-                        <button class="btn btn-primary px-4" type="submit">Search</button>
-                    </div>
-                </form>
-                <div class="mt-3 text-center">
-                    <small class="text-muted">
-                        Try:
-                        <a href="{{ url_for('search', q='machine learning') }}">machine learning</a>,
-                        <a href="{{ url_for('search', q='neural networks') }}">neural networks</a>,
-                        <a href="{{ url_for('search', q='2024') }}">2024</a>
-                    </small>
-                </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div class="stat-icon success" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.5rem;">
+                <i class="bi bi-tags"></i>
             </div>
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Document Classification</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                Classify documents into Business, Entertainment, or Health categories using AI.
+            </p>
         </div>
-
-        <!-- Features Section -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 mx-auto"
-                             style="width: 60px; height: 60px; line-height: 60px;">
-                            <i class="bi bi-search"></i>
-                        </div>
-                        <h5 class="card-title">Academic Search</h5>
-                        <p class="card-text text-muted">
-                            Search through publications using advanced TF-IDF and BM25 ranking algorithms.
-                        </p>
-                    </div>
-                </div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="card" style="text-align: center; padding: 1.5rem;">
+            <div class="stat-icon info" style="margin: 0 auto 1rem; width: 56px; height: 56px; font-size: 1.5rem;">
+                <i class="bi bi-diagram-3"></i>
             </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3 mx-auto"
-                             style="width: 60px; height: 60px; line-height: 60px;">
-                            <i class="bi bi-tags"></i>
-                        </div>
-                        <h5 class="card-title">Document Classification</h5>
-                        <p class="card-text text-muted">
-                            Classify documents into Business, Entertainment, or Health categories using AI.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-info bg-gradient text-white rounded-circle mb-3 mx-auto"
-                             style="width: 60px; height: 60px; line-height: 60px;">
-                            <i class="bi bi-diagram-3"></i>
-                        </div>
-                        <h5 class="card-title">Smart Preprocessing</h5>
-                        <p class="card-text text-muted">
-                            NLP pipeline with stemming, lemmatization, and synonym expansion.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">Smart Preprocessing</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">
+                NLP pipeline with stemming, lemmatization, and synonym expansion.
+            </p>
         </div>
+    </div>
+</div>
 
-        <!-- Statistics Section -->
-        {% if stats %}
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Index Statistics</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <div class="display-6 text-primary">{{ stats.total_documents }}</div>
-                        <div class="text-muted">Publications</div>
+<!-- Statistics Section -->
+{% if stats %}
+<div style="max-width: 1000px; margin: 2rem auto;">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="bi bi-bar-chart"></i> Index Statistics
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row" style="text-align: center;">
+                <div class="col-6 col-md-3" style="padding: 1rem;">
+                    <div class="stat-card" style="flex-direction: column; border: none; box-shadow: none;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">{{ stats.total_documents }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Publications</div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="display-6 text-success">{{ stats.total_terms }}</div>
-                        <div class="text-muted">Unique Terms</div>
+                </div>
+                <div class="col-6 col-md-3" style="padding: 1rem;">
+                    <div class="stat-card" style="flex-direction: column; border: none; box-shadow: none;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">{{ stats.total_terms }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Unique Terms</div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="display-6 text-info">{{ stats.average_doc_length }}</div>
-                        <div class="text-muted">Avg Doc Length</div>
+                </div>
+                <div class="col-6 col-md-3" style="padding: 1rem;">
+                    <div class="stat-card" style="flex-direction: column; border: none; box-shadow: none;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--info-color);">{{ stats.average_doc_length }}</div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Avg Doc Length</div>
                     </div>
-                    <div class="col-md-3">
-                        <div class="display-6 text-warning">
+                </div>
+                <div class="col-6 col-md-3" style="padding: 1rem;">
+                    <div class="stat-card" style="flex-direction: column; border: none; box-shadow: none;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: var(--warning-color);">
                             {% if stats.last_updated %}
                                 {{ stats.last_updated[:10] }}
                             {% else %}
                                 N/A
                             {% endif %}
                         </div>
-                        <div class="text-muted">Last Updated</div>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">Last Updated</div>
                     </div>
                 </div>
             </div>
         </div>
-        {% endif %}
     </div>
 </div>
+{% endif %}
 {% endblock %}

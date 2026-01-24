@@ -3,57 +3,57 @@
 {% block title %}Admin Login - Coventry Research Search{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5 col-lg-4">
-        <div class="card shadow-sm mt-5">
-            <div class="card-header bg-primary text-white text-center">
-                <h4 class="mb-0">
-                    <i class="bi bi-shield-lock"></i> Admin Login
-                </h4>
+<div style="max-width: 400px; margin: 3rem auto;">
+    <div class="card">
+        <div class="card-header" style="background: var(--primary-color); color: white; text-align: center;">
+            <h3 class="card-title" style="color: white; margin: 0;">
+                <i class="bi bi-shield-lock"></i> Admin Login
+            </h3>
+        </div>
+        <div class="card-body" style="padding: 2rem;">
+            {% if error %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle"></i> {{ error }}
             </div>
-            <div class="card-body p-4">
-                {% if error %}
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('admin_login') }}">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" class="form-control" id="username" name="username"
+                               placeholder="Enter username" required autofocus>
+                    </div>
                 </div>
-                {% endif %}
 
-                <form method="POST" action="{{ url_for('admin_login') }}">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-person"></i></span>
-                            <input type="text" class="form-control" id="username" name="username"
-                                   placeholder="Enter username" required autofocus>
-                        </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-key"></i>
+                        </span>
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Enter password" required>
                     </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-key"></i></span>
-                            <input type="password" class="form-control" id="password" name="password"
-                                   placeholder="Enter password" required>
-                        </div>
-                    </div>
-
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-box-arrow-in-right"></i> Login
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center text-muted">
-                <small>Admin access only</small>
-            </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem;">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </button>
+            </form>
         </div>
-
-        <div class="text-center mt-3">
-            <a href="{{ url_for('index') }}" class="text-muted">
-                <i class="bi bi-arrow-left"></i> Back to Home
-            </a>
+        <div style="padding: 1rem; text-align: center; border-top: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.85rem;">
+            Admin access only
         </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 1.5rem;">
+        <a href="{{ url_for('index') }}" style="color: var(--text-muted); text-decoration: none;">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
     </div>
 </div>
 {% endblock %}

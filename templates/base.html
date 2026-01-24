@@ -1,82 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Coventry Research Search{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('index') }}">
-                <i class="bi bi-search"></i> CU Research Search
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
-                            <i class="bi bi-house"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'search' %}active{% endif %}" href="{{ url_for('search') }}">
-                            <i class="bi bi-search"></i> Search
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'classify' %}active{% endif %}" href="{{ url_for('classify') }}">
-                            <i class="bi bi-tags"></i> Classify
-                        </a>
-                    </li>
-                </ul>
-                <span class="navbar-text">
-                    <i class="bi bi-journal-bookmark"></i>
-                    {{ stats.total_documents if stats else 0 }} publications indexed
-                </span>
-            </div>
-        </div>
-    </nav>
+    <div class="app-container">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- Flash Messages -->
-    <div class="container mt-3">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="{{ url_for('index') }}" class="sidebar-logo">
+                    <div class="sidebar-logo-icon">
+                        <i class="bi bi-search"></i>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+                    <span>CU Research</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Main Navigation -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Main Menu</div>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('index') }}" class="sidebar-link {% if request.endpoint == 'index' %}active{% endif %}">
+                                <i class="bi bi-house"></i>
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('search') }}" class="sidebar-link {% if request.endpoint == 'search' %}active{% endif %}">
+                                <i class="bi bi-search"></i>
+                                <span>Search</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('classify') }}" class="sidebar-link {% if request.endpoint == 'classify' %}active{% endif %}">
+                                <i class="bi bi-tags"></i>
+                                <span>Classify</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                {% if is_admin %}
+                <!-- Admin Section -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Administration</div>
+                    <ul class="sidebar-menu">
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('admin') }}" class="sidebar-link {% if request.endpoint == 'admin' %}active{% endif %}">
+                                <i class="bi bi-gear"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('admin_crawl_history') }}" class="sidebar-link {% if request.endpoint == 'admin_crawl_history' %}active{% endif %}">
+                                <i class="bi bi-clock-history"></i>
+                                <span>Crawl History</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-menu-item">
+                            <a href="{{ url_for('admin_crawl_summary') }}" class="sidebar-link {% if request.endpoint == 'admin_crawl_summary' %}active{% endif %}">
+                                <i class="bi bi-graph-up"></i>
+                                <span>Crawl Summary</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                <div style="color: var(--text-sidebar-muted); font-size: 0.8rem;">
+                    <i class="bi bi-journal-bookmark"></i>
+                    {{ stats.total_documents if stats else 0 }} publications
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <form action="{{ url_for('search') }}" method="GET" style="display: contents;">
+                            <input type="text" name="q" placeholder="Search publications..." value="{{ request.args.get('q', '') }}">
+                        </form>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+                        <i class="bi bi-moon" id="themeIcon"></i>
+                    </button>
+                    {% if is_admin %}
+                    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="d-none d-md-inline">Logout</span>
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('admin_login') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-person"></i>
+                        <span class="d-none d-md-inline">Admin</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} fade-in" role="alert">
+                                <i class="bi {% if category == 'success' %}bi-check-circle{% elif category == 'warning' %}bi-exclamation-triangle{% elif category == 'danger' %}bi-x-circle{% else %}bi-info-circle{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Main Page Content -->
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <p>Vertical Academic Search Engine - Information Retrieval Coursework</p>
+                <p style="font-size: 0.75rem; margin-top: 0.25rem;">
+                    Coventry University - Research Centre for Computational Science and Mathematical Modelling
+                </p>
+            </footer>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <main class="container my-4">
-        {% block content %}{% endblock %}
-    </main>
+    <script>
+        // Theme Toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+            const currentTheme = html.getAttribute('data-theme');
 
-    <!-- Footer -->
-    <footer class="bg-light py-4 mt-5">
-        <div class="container text-center">
-            <p class="text-muted mb-1">
-                Vertical Academic Search Engine - Information Retrieval Coursework
-            </p>
-            <p class="text-muted small">
-                Coventry University - Research Centre for Computational Science and Mathematical Modelling
-            </p>
-        </div>
-    </footer>
+            if (currentTheme === 'light') {
+                html.setAttribute('data-theme', 'dark');
+                themeIcon.classList.remove('bi-moon');
+                themeIcon.classList.add('bi-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                themeIcon.classList.remove('bi-sun');
+                themeIcon.classList.add('bi-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        // Load saved theme
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('themeIcon');
+
+            html.setAttribute('data-theme', savedTheme);
+
+            if (savedTheme === 'dark') {
+                themeIcon.classList.remove('bi-moon');
+                themeIcon.classList.add('bi-sun');
+            }
+        })();
+
+        // Mobile Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleBtn = document.querySelector('.mobile-menu-toggle');
+
+            if (window.innerWidth <= 991 &&
+                !sidebar.contains(e.target) &&
+                !toggleBtn.contains(e.target) &&
+                sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

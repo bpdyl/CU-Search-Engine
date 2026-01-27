@@ -1,126 +1,530 @@
 {% extends "base.html" %}
 
-{% block title %}Coventry Research Search - Home{% endblock %}
+{% block title %}Coventry Research Search — Discover Academic Excellence{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========================================
+       Hero Section
+       ======================================== */
+    .hero {
+        text-align: center;
+        padding: var(--space-3xl) 0;
+        position: relative;
+    }
+    
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, var(--color-brand-light) 0%, transparent 70%);
+        pointer-events: none;
+        opacity: 0.6;
+        z-index: -1;
+    }
+    
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-xs) var(--space-md);
+        background: var(--color-bg-tertiary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-full);
+        font-size: 0.8125rem;
+        color: var(--color-text-secondary);
+        margin-bottom: var(--space-lg);
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .hero-badge-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--color-success);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.2); }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .hero-title {
+        font-family: var(--font-display);
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 400;
+        line-height: 1.1;
+        margin: 0 0 var(--space-lg);
+        color: var(--color-text-primary);
+        animation: fadeInUp 0.6s ease-out 0.1s both;
+    }
+    
+    .hero-title em {
+        font-style: italic;
+        color: var(--color-brand-primary);
+    }
+    
+    .hero-subtitle {
+        font-size: 1.125rem;
+        color: var(--color-text-secondary);
+        max-width: 540px;
+        margin: 0 auto var(--space-2xl);
+        line-height: 1.7;
+        animation: fadeInUp 0.6s ease-out 0.2s both;
+    }
+    
+    /* ========================================
+       Search Box
+       ======================================== */
+    .search-container {
+        max-width: 640px;
+        margin: 0 auto var(--space-2xl);
+        animation: fadeInUp 0.6s ease-out 0.3s both;
+    }
+    
+    .search-box {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-lg);
+        padding: var(--space-sm);
+        box-shadow: var(--shadow-lg);
+        transition: all var(--transition-base);
+    }
+    
+    .search-box:focus-within {
+        border-color: var(--color-brand-primary);
+        box-shadow: var(--shadow-xl), 0 0 0 3px var(--color-brand-light);
+    }
+    
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+    
+    .search-icon {
+        padding-left: var(--space-md);
+        color: var(--color-text-tertiary);
+        font-size: 1.25rem;
+    }
+    
+    .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: var(--space-md);
+        font-family: var(--font-body);
+        font-size: 1.0625rem;
+        color: var(--color-text-primary);
+        outline: none;
+    }
+    
+    .search-input::placeholder {
+        color: var(--color-text-tertiary);
+    }
+    
+    .search-button {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-md) var(--space-xl);
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-family: var(--font-body);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .search-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+    }
+    
+    .search-button:active {
+        transform: translateY(0);
+    }
+    
+    .search-suggestions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+        margin-top: var(--space-lg);
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+    }
+    
+    .search-suggestion {
+        padding: var(--space-xs) var(--space-md);
+        background: var(--color-bg-tertiary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-full);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all var(--transition-fast);
+    }
+    
+    .search-suggestion:hover {
+        background: var(--color-brand-light);
+        border-color: var(--color-brand-primary);
+        color: var(--color-brand-primary);
+    }
+    
+    /* ========================================
+       Features Grid
+       ======================================== */
+    .features-section {
+        padding: var(--space-2xl) 0;
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: var(--space-2xl);
+    }
+    
+    .section-label {
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--color-brand-primary);
+        margin-bottom: var(--space-sm);
+    }
+    
+    .section-title {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        margin: 0;
+    }
+    
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: var(--space-lg);
+    }
+    
+    .feature-card {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-md);
+        padding: var(--space-xl);
+        transition: all var(--transition-base);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--color-brand-primary), var(--color-brand-accent));
+        opacity: 0;
+        transition: opacity var(--transition-base);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .feature-card:hover::before {
+        opacity: 1;
+    }
+    
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--color-brand-light);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: var(--color-brand-primary);
+        margin-bottom: var(--space-md);
+    }
+    
+    .feature-title {
+        font-family: var(--font-display);
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-sm);
+    }
+    
+    .feature-description {
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+        margin: 0;
+        line-height: 1.6;
+    }
+    
+    /* ========================================
+       Statistics Section
+       ======================================== */
+    .stats-section {
+        padding: var(--space-2xl) 0;
+    }
+    
+    .stats-card {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-lg);
+        padding: var(--space-xl);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .stats-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-xl);
+        padding-bottom: var(--space-md);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .stats-header-icon {
+        color: var(--color-brand-primary);
+        font-size: 1.25rem;
+    }
+    
+    .stats-header-title {
+        font-family: var(--font-display);
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-xl);
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    .stat-item {
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--color-brand-primary);
+        line-height: 1;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .stat-value.accent {
+        color: var(--color-brand-accent);
+    }
+    
+    .stat-value.info {
+        color: var(--color-info);
+    }
+    
+    .stat-value.secondary {
+        color: var(--color-text-secondary);
+    }
+    
+    .stat-label {
+        font-size: 0.8125rem;
+        color: var(--color-text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    /* ========================================
+       Animations on Scroll
+       ======================================== */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s ease-out;
+    }
+    
+    .animate-on-scroll.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <!-- Hero Section -->
-        <div class="text-center py-5">
-            <h1 class="display-4 mb-3">
-                <i class="bi bi-mortarboard-fill text-primary"></i>
-            </h1>
-            <h2 class="display-5 mb-3">Coventry University Research Search</h2>
-            <p class="lead text-muted">
-                Search publications from the Research Centre for Computational Science and Mathematical Modelling
-            </p>
+<div class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-badge">
+            <span class="hero-badge-dot"></span>
+            <span>Research Portal Active</span>
         </div>
-
-        <!-- Search Form -->
-        <div class="card shadow-sm mb-5">
-            <div class="card-body p-4">
-                <form action="{{ url_for('search') }}" method="GET">
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-text bg-white">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" class="form-control" name="q"
-                               placeholder="Search publications, authors, keywords..."
-                               autofocus>
-                        <button class="btn btn-primary px-4" type="submit">Search</button>
-                    </div>
+        
+        <h1 class="hero-title">
+            Discover <em>Academic</em><br>Excellence
+        </h1>
+        
+        <p class="hero-subtitle">
+            Explore publications from Coventry University's Research Centre for 
+            Computational Science and Mathematical Modelling
+        </p>
+        
+        <!-- Search Box -->
+        <div class="search-container">
+            <div class="search-box">
+                <form action="{{ url_for('search') }}" method="GET" class="search-form">
+                    <i class="bi bi-search search-icon"></i>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        class="search-input" 
+                        placeholder="Search publications, authors, keywords..."
+                        autofocus
+                    >
+                    <button type="submit" class="search-button">
+                        <span>Search</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
                 </form>
-                <div class="mt-3 text-center">
-                    <small class="text-muted">
-                        Try:
-                        <a href="{{ url_for('search', q='machine learning') }}">machine learning</a>,
-                        <a href="{{ url_for('search', q='neural networks') }}">neural networks</a>,
-                        <a href="{{ url_for('search', q='2024') }}">2024</a>
-                    </small>
+            </div>
+            
+            <div class="search-suggestions">
+                <span style="color: var(--color-text-tertiary); font-size: 0.875rem;">Try:</span>
+                <a href="{{ url_for('search', q='machine learning') }}" class="search-suggestion">machine learning</a>
+                <a href="{{ url_for('search', q='neural networks') }}" class="search-suggestion">neural networks</a>
+                <a href="{{ url_for('search', q='optimization') }}" class="search-suggestion">optimization</a>
+                <a href="{{ url_for('search', q='2024') }}" class="search-suggestion">2024</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features-section animate-on-scroll">
+        <div class="section-header">
+            <div class="section-label">Capabilities</div>
+            <h2 class="section-title">Powered by Advanced IR Techniques</h2>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-search-heart"></i>
+                </div>
+                <h3 class="feature-title">Intelligent Search</h3>
+                <p class="feature-description">
+                    Advanced TF-IDF and BM25 ranking algorithms ensure highly relevant results for your academic queries.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+                <h3 class="feature-title">Document Classification</h3>
+                <p class="feature-description">
+                    Naive Bayes classifier automatically categorizes documents into Business, Entertainment, or Health topics.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-braces"></i>
+                </div>
+                <h3 class="feature-title">NLP Pipeline</h3>
+                <p class="feature-description">
+                    Sophisticated preprocessing with stemming, lemmatization, and synonym expansion for precise matching.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Statistics Section -->
+    {% if stats %}
+    <section class="stats-section animate-on-scroll">
+        <div class="stats-card">
+            <div class="stats-header">
+                <i class="bi bi-bar-chart-fill stats-header-icon"></i>
+                <h3 class="stats-header-title">Index Statistics</h3>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">{{ stats.total_documents }}</div>
+                    <div class="stat-label">Publications</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value accent">{{ stats.total_terms }}</div>
+                    <div class="stat-label">Unique Terms</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value info">{{ stats.average_doc_length }}</div>
+                    <div class="stat-label">Avg Length</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-value secondary">
+                        {% if stats.last_updated %}
+                            {{ stats.last_updated[:10] }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Last Updated</div>
                 </div>
             </div>
         </div>
-
-        <!-- Features Section -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3 mx-auto"
-                             style="width: 60px; height: 60px; line-height: 60px;">
-                            <i class="bi bi-search"></i>
-                        </div>
-                        <h5 class="card-title">Academic Search</h5>
-                        <p class="card-text text-muted">
-                            Search through publications using advanced TF-IDF and BM25 ranking algorithms.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-success bg-gradient text-white rounded-circle mb-3 mx-auto"
-                             style="width: 60px; height: 60px; line-height: 60px;">
-                            <i class="bi bi-tags"></i>
-                        </div>
-                        <h5 class="card-title">Document Classification</h5>
-                        <p class="card-text text-muted">
-                            Classify documents into Business, Entertainment, or Health categories using AI.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center">
-                        <div class="feature-icon bg-info bg-gradient text-white rounded-circle mb-3 mx-auto"
-                             style="width: 60px; height: 60px; line-height: 60px;">
-                            <i class="bi bi-diagram-3"></i>
-                        </div>
-                        <h5 class="card-title">Smart Preprocessing</h5>
-                        <p class="card-text text-muted">
-                            NLP pipeline with stemming, lemmatization, and synonym expansion.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Statistics Section -->
-        {% if stats %}
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Index Statistics</h5>
-            </div>
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3">
-                        <div class="display-6 text-primary">{{ stats.total_documents }}</div>
-                        <div class="text-muted">Publications</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="display-6 text-success">{{ stats.total_terms }}</div>
-                        <div class="text-muted">Unique Terms</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="display-6 text-info">{{ stats.average_doc_length }}</div>
-                        <div class="text-muted">Avg Doc Length</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="display-6 text-warning">
-                            {% if stats.last_updated %}
-                                {{ stats.last_updated[:10] }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </div>
-                        <div class="text-muted">Last Updated</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-    </div>
+    </section>
+    {% endif %}
 </div>
+
+<script>
+    // Animate elements on scroll
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+    
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+</script>
 {% endblock %}

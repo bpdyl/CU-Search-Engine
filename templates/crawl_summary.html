@@ -1,281 +1,553 @@
 {% extends "base.html" %}
 
-{% block title %}Crawl Summary - Admin{% endblock %}
+{% block title %}Crawl Summary — Admin{% endblock %}
+
+{% block main_class %}wide{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Breadcrumb */
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-lg);
+        font-size: 0.875rem;
+    }
+    
+    .breadcrumb a {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+    
+    .breadcrumb a:hover { color: var(--color-brand-primary); }
+    .breadcrumb-separator { color: var(--color-text-tertiary); }
+    .breadcrumb-current { color: var(--color-text-primary); font-weight: 500; }
+    
+    /* Page Header */
+    .page-header {
+        margin-bottom: var(--space-xl);
+    }
+    
+    .page-header h1 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-sm);
+    }
+    
+    .page-header h1 i { color: var(--color-brand-primary); }
+    .page-header p { color: var(--color-text-secondary); margin: 0; }
+    
+    /* Glass Panels */
+    .glass-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+        margin-bottom: var(--space-xl);
+    }
+    
+    .panel-header {
+        padding: var(--space-lg);
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        color: white;
+    }
+    
+    .panel-header.secondary {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .panel-header h3 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-family: var(--font-display);
+        font-size: 1.0625rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .panel-header.secondary h3 i { color: var(--color-brand-primary); }
+    
+    .panel-body { padding: var(--space-xl); }
+    
+    /* Aggregate Stats Grid */
+    .aggregate-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: var(--space-lg);
+        text-align: center;
+    }
+    
+    @media (max-width: 1024px) { .aggregate-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 640px) { .aggregate-grid { grid-template-columns: repeat(2, 1fr); } }
+    
+    .aggregate-stat { padding: var(--space-md); }
+    
+    .aggregate-stat-value {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .aggregate-stat-value.primary { color: var(--color-brand-primary); }
+    .aggregate-stat-value.success { color: var(--color-success); }
+    .aggregate-stat-value.info { color: var(--color-info); }
+    .aggregate-stat-value.warning { color: var(--color-warning); }
+    .aggregate-stat-value.secondary { color: var(--color-text-secondary); }
+    
+    .aggregate-stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+    }
+    
+    /* Metrics Cards */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-md);
+        margin-bottom: var(--space-xl);
+    }
+    
+    @media (max-width: 768px) { .metrics-grid { grid-template-columns: repeat(2, 1fr); } }
+    
+    .metric-card {
+        text-align: center;
+        padding: var(--space-lg);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-md);
+        transition: all var(--transition-fast);
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .metric-card-value {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .metric-card-value.primary { color: var(--color-brand-primary); }
+    .metric-card-value.success { color: var(--color-success); }
+    .metric-card-value.warning { color: var(--color-warning); }
+    .metric-card-value.info { color: var(--color-info); }
+    
+    .metric-card-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+    }
+    
+    /* Info Grid */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xl);
+        margin-bottom: var(--space-xl);
+    }
+    
+    @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr; } }
+    
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .info-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-sm) 0;
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .info-list li:last-child { border-bottom: none; }
+    .info-list li strong { color: var(--color-text-primary); }
+    
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-lg);
+    }
+    
+    .section-header i { color: var(--color-brand-primary); }
+    
+    /* Data Table */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th {
+        text-align: left;
+        padding: var(--space-md);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+        background: var(--color-bg-tertiary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .data-table th.text-center { text-align: center; }
+    
+    .data-table td {
+        padding: var(--space-md);
+        font-size: 0.9375rem;
+        color: var(--color-text-primary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .data-table td.text-center { text-align: center; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--color-bg-tertiary); }
+    
+    /* Stats Cards */
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-lg);
+    }
+    
+    @media (max-width: 768px) { .stats-cards { grid-template-columns: 1fr; } }
+    
+    .stat-card {
+        padding: var(--space-lg);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-md);
+    }
+    
+    .stat-card-label {
+        font-size: 0.8125rem;
+        color: var(--color-text-secondary);
+        margin-bottom: var(--space-xs);
+    }
+    
+    .stat-card-value {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+    }
+    
+    /* Info Alert */
+    .info-alert {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        padding: var(--space-lg);
+        background: rgba(61, 90, 128, 0.1);
+        border: 1px solid var(--color-info);
+        border-radius: var(--radius-md);
+        color: var(--color-info);
+    }
+    
+    /* Navigation Footer */
+    .nav-footer {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+        padding-top: var(--space-lg);
+        border-top: 1px solid var(--color-border-primary);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin') }}">Admin</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('admin_crawl_history') }}">Crawl History</a></li>
-                    <li class="breadcrumb-item active">Detailed Summary</li>
-                </ol>
-            </nav>
-            <h2><i class="bi bi-graph-up"></i> Crawl Summary & Metrics</h2>
-            <p class="text-muted">Detailed analysis of crawl sessions including publication statistics and co-authorship data.</p>
-        </div>
-    </div>
+<!-- Breadcrumb -->
+<nav class="breadcrumb">
+    <a href="{{ url_for('admin') }}">Admin</a>
+    <span class="breadcrumb-separator"><i class="bi bi-chevron-right"></i></span>
+    <a href="{{ url_for('admin_crawl_history') }}">Crawl History</a>
+    <span class="breadcrumb-separator"><i class="bi bi-chevron-right"></i></span>
+    <span class="breadcrumb-current">Detailed Summary</span>
+</nav>
 
-    <!-- Aggregate Statistics -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-bar-chart-fill"></i> Aggregate Statistics</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-2 col-6 mb-3">
-                            <h3 class="text-primary mb-0">{{ aggregate.total_crawls }}</h3>
-                            <small class="text-muted">Total Crawls</small>
-                        </div>
-                        <div class="col-md-2 col-6 mb-3">
-                            <h3 class="text-success mb-0">{{ aggregate.total_publications_crawled }}</h3>
-                            <small class="text-muted">Total Publications Found</small>
-                        </div>
-                        <div class="col-md-2 col-6 mb-3">
-                            <h3 class="text-info mb-0">{{ aggregate.total_unique_publications }}</h3>
-                            <small class="text-muted">Unique Publications</small>
-                        </div>
-                        <div class="col-md-2 col-6 mb-3">
-                            <h3 class="text-warning mb-0">{{ aggregate.total_duplicates_detected }}</h3>
-                            <small class="text-muted">Duplicates Detected</small>
-                        </div>
-                        <div class="col-md-2 col-6 mb-3">
-                            <h3 class="text-secondary mb-0">{{ aggregate.average_crawl_duration_formatted }}</h3>
-                            <small class="text-muted">Avg Duration</small>
-                        </div>
-                        <div class="col-md-2 col-6 mb-3">
-                            <h3 class="text-success mb-0">{{ aggregate.success_rate }}%</h3>
-                            <small class="text-muted">Success Rate</small>
-                        </div>
-                    </div>
-                </div>
+<!-- Page Header -->
+<header class="page-header">
+    <h1><i class="bi bi-graph-up"></i> Crawl Summary & Metrics</h1>
+    <p>Detailed analysis of crawl sessions including publication statistics and co-authorship data.</p>
+</header>
+
+<!-- Aggregate Statistics -->
+<div class="glass-panel">
+    <div class="panel-header">
+        <h3><i class="bi bi-bar-chart-fill"></i> Aggregate Statistics</h3>
+    </div>
+    <div class="panel-body">
+        <div class="aggregate-grid">
+            <div class="aggregate-stat">
+                <div class="aggregate-stat-value primary">{{ aggregate.total_crawls }}</div>
+                <div class="aggregate-stat-label">Total Crawls</div>
+            </div>
+            <div class="aggregate-stat">
+                <div class="aggregate-stat-value success">{{ aggregate.total_publications_crawled }}</div>
+                <div class="aggregate-stat-label">Publications Found</div>
+            </div>
+            <div class="aggregate-stat">
+                <div class="aggregate-stat-value info">{{ aggregate.total_unique_publications }}</div>
+                <div class="aggregate-stat-label">Unique Publications</div>
+            </div>
+            <div class="aggregate-stat">
+                <div class="aggregate-stat-value warning">{{ aggregate.total_duplicates_detected }}</div>
+                <div class="aggregate-stat-label">Duplicates Detected</div>
+            </div>
+            <div class="aggregate-stat">
+                <div class="aggregate-stat-value secondary">{{ aggregate.average_crawl_duration_formatted }}</div>
+                <div class="aggregate-stat-label">Avg Duration</div>
+            </div>
+            <div class="aggregate-stat">
+                <div class="aggregate-stat-value success">{{ aggregate.success_rate }}%</div>
+                <div class="aggregate-stat-label">Success Rate</div>
             </div>
         </div>
     </div>
+</div>
 
-    {% if latest %}
-    <!-- Latest Crawl Details -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Latest Crawl Details</h5>
-                </div>
-                <div class="card-body">
-                    <!-- Overall Metrics -->
-                    <div class="row mb-4">
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border rounded p-3 text-center h-100">
-                                <h4 class="text-primary mb-1">{{ latest.overall_metrics.total_publications_found }}</h4>
-                                <small class="text-muted">Total Found (Raw)</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border rounded p-3 text-center h-100">
-                                <h4 class="text-success mb-1">{{ latest.overall_metrics.unique_publications_indexed }}</h4>
-                                <small class="text-muted">Unique Indexed</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border rounded p-3 text-center h-100">
-                                <h4 class="text-warning mb-1">{{ latest.overall_metrics.duplicates_detected }}</h4>
-                                <small class="text-muted">Duplicates Skipped</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3 col-6 mb-3">
-                            <div class="border rounded p-3 text-center h-100">
-                                <h4 class="text-info mb-1">{{ latest.overall_metrics.co_authored_publications }}</h4>
-                                <small class="text-muted">Co-Authored Pubs</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Started:</strong> {{ latest.started_at }}</p>
-                            <p><strong>Duration:</strong> {{ latest.duration_formatted }}</p>
-                            <p><strong>Status:</strong>
-                                {% if latest.status == 'completed' %}
-                                    <span class="badge bg-success">Completed</span>
-                                {% elif latest.status == 'failed' %}
-                                    <span class="badge bg-danger">Failed</span>
-                                {% else %}
-                                    <span class="badge bg-warning">{{ latest.status }}</span>
-                                {% endif %}
-                            </p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Authors Crawled:</strong> {{ latest.overall_metrics.total_authors_crawled }}</p>
-                            <p><strong>Pages Crawled:</strong> {{ latest.overall_metrics.total_pages_crawled }}</p>
-                            <p><strong>Deduplication Rate:</strong> {{ latest.overall_metrics.deduplication_rate }}%</p>
-                        </div>
-                    </div>
-
-                    <!-- Per-Author Breakdown -->
-                    {% if latest.author_summaries %}
-                    <h6 class="mt-4 mb-3"><i class="bi bi-people-fill"></i> Per-Author Breakdown</h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped">
-                            <thead class="table">
-                                <tr>
-                                    <th>Author</th>
-                                    <th class="text-center">Total Found</th>
-                                    <th class="text-center">Unique Added</th>
-                                    <th class="text-center">Duplicates</th>
-                                    <th class="text-center">Pages Crawled</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for author in latest.author_summaries %}
-                                <tr>
-                                    <td>{{ author.name }}</td>
-                                    <td class="text-center">{{ author.total_publications_found }}</td>
-                                    <td class="text-center text-success">{{ author.unique_publications_added }}</td>
-                                    <td class="text-center text-warning">{{ author.duplicates_skipped }}</td>
-                                    <td class="text-center">{{ author.pages_crawled }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% endif %}
-
-                    <!-- Co-Authored Publications -->
-                    {% if latest.co_authorship_analysis.publications %}
-                    <h6 class="mt-4 mb-3"><i class="bi bi-diagram-3-fill"></i> Co-Authored Publications (Shared by Multiple Authors in Dataset)</h6>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead class="table-secondary">
-                                <tr>
-                                    <th>Publication Title</th>
-                                    <th class="text-center">Authors</th>
-                                    <th>Shared By</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for pub in latest.co_authorship_analysis.publications[:10] %}
-                                <tr>
-                                    <td>{{ pub.title[:80] }}{% if pub.title|length > 80 %}...{% endif %}</td>
-                                    <td class="text-center"><span class="badge bg-info">{{ pub.author_count }}</span></td>
-                                    <td>
-                                        {% for author in pub.shared_by_authors[:3] %}
-                                            <small class="text-muted">{{ author }}{% if not loop.last %}, {% endif %}</small>
-                                        {% endfor %}
-                                        {% if pub.shared_by_authors|length > 3 %}
-                                            <small class="text-muted">+{{ pub.shared_by_authors|length - 3 }} more</small>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% endif %}
-
-                    <!-- Statistics -->
-                    {% if latest.statistics %}
-                    <h6 class="mt-4 mb-3"><i class="bi bi-calculator"></i> Statistics</h6>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p><strong>Avg Publications per Author:</strong> {{ latest.statistics.avg_publications_per_author }}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Avg Unique per Author:</strong> {{ latest.statistics.avg_unique_per_author }}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Avg Pages per Author:</strong> {{ latest.statistics.avg_pages_per_author }}</p>
-                        </div>
-                    </div>
-                    {% if latest.statistics.most_prolific_author %}
-                    <p><strong>Most Prolific Author:</strong> {{ latest.statistics.most_prolific_author.name }}
-                        ({{ latest.statistics.most_prolific_author.total_publications_found }} publications)</p>
-                    {% endif %}
-                    {% endif %}
-                </div>
+{% if latest %}
+<!-- Latest Crawl Details -->
+<div class="glass-panel">
+    <div class="panel-header">
+        <h3><i class="bi bi-clock-history"></i> Latest Crawl Details</h3>
+    </div>
+    <div class="panel-body">
+        <!-- Metrics Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-card-value primary">{{ latest.overall_metrics.total_publications_found }}</div>
+                <div class="metric-card-label">Total Found (Raw)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-value success">{{ latest.overall_metrics.unique_publications_indexed }}</div>
+                <div class="metric-card-label">Unique Indexed</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-value warning">{{ latest.overall_metrics.duplicates_detected }}</div>
+                <div class="metric-card-label">Duplicates Skipped</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-card-value info">{{ latest.overall_metrics.co_authored_publications }}</div>
+                <div class="metric-card-label">Co-Authored Pubs</div>
             </div>
         </div>
-    </div>
-    {% endif %}
-
-    <!-- Recent Crawl Summaries -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="bi bi-list-ul"></i> Recent Crawl Summaries</h5>
-                </div>
-                <div class="card-body">
-                    {% if recent_summaries %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Trigger</th>
-                                    <th class="text-center">Total Found</th>
-                                    <th class="text-center">Unique</th>
-                                    <th class="text-center">Duplicates</th>
-                                    <th class="text-center">Authors</th>
-                                    <th>Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for summary in recent_summaries %}
-                                <tr>
-                                    <td>
-                                        <small>{{ summary.started_at[:19] }}</small>
-                                    </td>
-                                    <td>
-                                        {% if summary.status == 'completed' %}
-                                            <span class="badge bg-success">Completed</span>
-                                        {% elif summary.status == 'failed' %}
-                                            <span class="badge bg-danger">Failed</span>
-                                        {% else %}
-                                            <span class="badge bg-warning">{{ summary.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if summary.trigger == 'manual' %}
-                                            <span class="badge bg-primary">Manual</span>
-                                        {% else %}
-                                            <span class="badge bg-info">Scheduled</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center">{{ summary.overall_metrics.total_publications_found }}</td>
-                                    <td class="text-center text-success">{{ summary.overall_metrics.unique_publications_indexed }}</td>
-                                    <td class="text-center text-warning">{{ summary.overall_metrics.duplicates_detected }}</td>
-                                    <td class="text-center">{{ summary.overall_metrics.total_authors_crawled }}</td>
-                                    <td>{{ summary.duration_formatted }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    {% else %}
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No crawl summaries available yet. Run the crawler to generate detailed summaries.
-                    </div>
-                    {% endif %}
-                </div>
+        
+        <!-- Info Grid -->
+        <div class="info-grid">
+            <ul class="info-list">
+                <li><span>Started</span> <strong>{{ latest.started_at }}</strong></li>
+                <li><span>Duration</span> <strong>{{ latest.duration_formatted }}</strong></li>
+                <li>
+                    <span>Status</span>
+                    <strong>
+                        {% if latest.status == 'completed' %}
+                            <span class="badge badge-success">Completed</span>
+                        {% elif latest.status == 'failed' %}
+                            <span class="badge badge-error">Failed</span>
+                        {% else %}
+                            <span class="badge badge-warning">{{ latest.status }}</span>
+                        {% endif %}
+                    </strong>
+                </li>
+            </ul>
+            <ul class="info-list">
+                <li><span>Authors Crawled</span> <strong>{{ latest.overall_metrics.total_authors_crawled }}</strong></li>
+                <li><span>Pages Crawled</span> <strong>{{ latest.overall_metrics.total_pages_crawled }}</strong></li>
+                <li><span>Deduplication Rate</span> <strong>{{ latest.overall_metrics.deduplication_rate }}%</strong></li>
+            </ul>
+        </div>
+        
+        <!-- Per-Author Breakdown -->
+        {% if latest.author_summaries %}
+        <h4 class="section-header"><i class="bi bi-people-fill"></i> Per-Author Breakdown</h4>
+        <div class="table-container" style="border: none; background: transparent; backdrop-filter: none;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th class="text-center">Total Found</th>
+                        <th class="text-center">Unique Added</th>
+                        <th class="text-center">Duplicates</th>
+                        <th class="text-center">Pages Crawled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for author in latest.author_summaries %}
+                    <tr>
+                        <td>{{ author.name }}</td>
+                        <td class="text-center">{{ author.total_publications_found }}</td>
+                        <td class="text-center text-success">{{ author.unique_publications_added }}</td>
+                        <td class="text-center text-warning">{{ author.duplicates_skipped }}</td>
+                        <td class="text-center">{{ author.pages_crawled }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
+        <!-- Co-Authored Publications -->
+        {% if latest.co_authorship_analysis.publications %}
+        <h4 class="section-header" style="margin-top: var(--space-xl);"><i class="bi bi-diagram-3-fill"></i> Co-Authored Publications</h4>
+        <div class="table-container" style="border: none; background: transparent; backdrop-filter: none;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Publication Title</th>
+                        <th class="text-center">Authors</th>
+                        <th>Shared By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pub in latest.co_authorship_analysis.publications[:10] %}
+                    <tr>
+                        <td>{{ pub.title[:80] }}{% if pub.title|length > 80 %}...{% endif %}</td>
+                        <td class="text-center"><span class="badge badge-info">{{ pub.author_count }}</span></td>
+                        <td>
+                            {% for author in pub.shared_by_authors[:3] %}
+                                <span class="text-muted" style="font-size: 0.8125rem;">{{ author }}{% if not loop.last %}, {% endif %}</span>
+                            {% endfor %}
+                            {% if pub.shared_by_authors|length > 3 %}
+                                <span class="text-muted" style="font-size: 0.8125rem;">+{{ pub.shared_by_authors|length - 3 }} more</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
+        <!-- Statistics -->
+        {% if latest.statistics %}
+        <h4 class="section-header" style="margin-top: var(--space-xl);"><i class="bi bi-calculator"></i> Statistics</h4>
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-card-label">Avg Publications per Author</div>
+                <div class="stat-card-value">{{ latest.statistics.avg_publications_per_author }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">Avg Unique per Author</div>
+                <div class="stat-card-value">{{ latest.statistics.avg_unique_per_author }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">Avg Pages per Author</div>
+                <div class="stat-card-value">{{ latest.statistics.avg_pages_per_author }}</div>
             </div>
         </div>
+        {% if latest.statistics.most_prolific_author %}
+        <p style="margin-top: var(--space-lg); color: var(--color-text-secondary);">
+            <strong style="color: var(--color-text-primary);">Most Prolific Author:</strong> 
+            {{ latest.statistics.most_prolific_author.name }} 
+            ({{ latest.statistics.most_prolific_author.total_publications_found }} publications)
+        </p>
+        {% endif %}
+        {% endif %}
     </div>
+</div>
+{% endif %}
 
-    <!-- Navigation -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <a href="{{ url_for('admin') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to Admin
-            </a>
-            <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-outline-primary">
-                <i class="bi bi-clock-history"></i> View Crawl History
-            </a>
-        </div>
+<!-- Recent Crawl Summaries -->
+<div class="glass-panel">
+    <div class="panel-header secondary">
+        <h3><i class="bi bi-list-ul"></i> Recent Crawl Summaries</h3>
     </div>
+    <div class="panel-body">
+        {% if recent_summaries %}
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Trigger</th>
+                        <th class="text-center">Total Found</th>
+                        <th class="text-center">Unique</th>
+                        <th class="text-center">Duplicates</th>
+                        <th class="text-center">Authors</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for summary in recent_summaries %}
+                    <tr>
+                        <td><span style="font-size: 0.875rem;">{{ summary.started_at[:19] }}</span></td>
+                        <td>
+                            {% if summary.status == 'completed' %}
+                                <span class="badge badge-success">Completed</span>
+                            {% elif summary.status == 'failed' %}
+                                <span class="badge badge-error">Failed</span>
+                            {% else %}
+                                <span class="badge badge-warning">{{ summary.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if summary.trigger == 'manual' %}
+                                <span class="badge badge-primary">Manual</span>
+                            {% else %}
+                                <span class="badge badge-info">Scheduled</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ summary.overall_metrics.total_publications_found }}</td>
+                        <td class="text-center text-success">{{ summary.overall_metrics.unique_publications_indexed }}</td>
+                        <td class="text-center text-warning">{{ summary.overall_metrics.duplicates_detected }}</td>
+                        <td class="text-center">{{ summary.overall_metrics.total_authors_crawled }}</td>
+                        <td>{{ summary.duration_formatted }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="info-alert">
+            <i class="bi bi-info-circle"></i>
+            <span>No crawl summaries available yet. Run the crawler to generate detailed summaries.</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Navigation Footer -->
+<div class="nav-footer">
+    <a href="{{ url_for('admin') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Admin</span>
+    </a>
+    <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-outline">
+        <i class="bi bi-clock-history"></i>
+        <span>View Crawl History</span>
+    </a>
 </div>
 {% endblock %}

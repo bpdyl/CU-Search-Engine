@@ -1,167 +1,717 @@
 {% extends "base.html" %}
 
-{% block title %}Search Results - Coventry Research Search{% endblock %}
+{% block title %}{% if query %}{{ query }} — Search Results{% else %}Search{% endif %} | CU Research{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ========================================
+       Search Page Layout
+       ======================================== */
+    .search-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    /* ========================================
+       Search Header
+       ======================================== */
+    .search-header {
+        margin-bottom: var(--space-xl);
+    }
+    
+    .search-box {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-lg);
+        padding: var(--space-sm);
+        box-shadow: var(--shadow-md);
+        transition: all var(--transition-base);
+    }
+    
+    .search-box:focus-within {
+        border-color: var(--color-brand-primary);
+        box-shadow: var(--shadow-lg), 0 0 0 3px var(--color-brand-light);
+    }
+    
+    .search-form {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+    
+    .search-icon {
+        padding-left: var(--space-md);
+        color: var(--color-text-tertiary);
+        font-size: 1.125rem;
+    }
+    
+    .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: var(--space-md);
+        font-family: var(--font-body);
+        font-size: 1rem;
+        color: var(--color-text-primary);
+        outline: none;
+    }
+    
+    .search-input::placeholder {
+        color: var(--color-text-tertiary);
+    }
+    
+    .search-button {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-md) var(--space-lg);
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-family: var(--font-body);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .search-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(45, 90, 61, 0.3);
+    }
+    
+    /* ========================================
+       Results Header
+       ======================================== */
+    .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--space-lg);
+        padding-bottom: var(--space-md);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .results-count {
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .results-count strong {
+        color: var(--color-text-primary);
+        font-weight: 600;
+    }
+    
+    .results-count .query-text {
+        color: var(--color-brand-primary);
+        font-weight: 500;
+    }
+    
+    /* Sort Dropdown */
+    .sort-dropdown {
+        position: relative;
+    }
+    
+    .sort-button {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-sm) var(--space-md);
+        background: var(--color-bg-tertiary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        color: var(--color-text-secondary);
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .sort-button:hover {
+        background: var(--color-bg-accent);
+        border-color: var(--color-border-secondary);
+    }
+    
+    .sort-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: var(--space-xs);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-lg);
+        min-width: 160px;
+        z-index: 50;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: all var(--transition-fast);
+    }
+    
+    .sort-dropdown:hover .sort-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .sort-option {
+        display: block;
+        width: 100%;
+        padding: var(--space-sm) var(--space-md);
+        background: none;
+        border: none;
+        text-align: left;
+        color: var(--color-text-secondary);
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .sort-option:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+    }
+    
+    .sort-option.active {
+        color: var(--color-brand-primary);
+        font-weight: 500;
+    }
+    
+    /* ========================================
+       Result Cards
+       ======================================== */
+    .results-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+    
+    .result-card {
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-md);
+        padding: var(--space-lg);
+        transition: all var(--transition-base);
+        position: relative;
+    }
+    
+    .result-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--color-brand-primary);
+        border-radius: var(--radius-md) 0 0 var(--radius-md);
+        opacity: 0;
+        transition: opacity var(--transition-fast);
+    }
+    
+    .result-card:hover {
+        box-shadow: var(--shadow-md);
+        transform: translateX(4px);
+    }
+    
+    .result-card:hover::before {
+        opacity: 1;
+    }
+    
+    .result-content {
+        display: flex;
+        gap: var(--space-lg);
+    }
+    
+    .result-main {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .result-score {
+        flex-shrink: 0;
+    }
+    
+    /* Result Title */
+    .result-title {
+        font-family: var(--font-display);
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.4;
+        margin: 0 0 var(--space-sm);
+    }
+    
+    .result-title a {
+        color: var(--color-text-primary);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+    
+    .result-title a:hover {
+        color: var(--color-brand-primary);
+    }
+    
+    .result-title .external-icon {
+        font-size: 0.75rem;
+        color: var(--color-text-tertiary);
+        margin-left: var(--space-xs);
+    }
+    
+    /* Authors */
+    .result-authors {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-sm);
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+        flex-wrap: wrap;
+    }
+    
+    .result-authors-icon {
+        color: var(--color-text-tertiary);
+    }
+    
+    .author-link {
+        color: var(--color-brand-primary);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+    
+    .author-link:hover {
+        text-decoration: underline;
+    }
+    
+    /* Meta Info */
+    .result-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin-bottom: var(--space-md);
+        flex-wrap: wrap;
+    }
+    
+    .result-year {
+        display: inline-flex;
+        align-items: center;
+        padding: var(--space-xs) var(--space-sm);
+        background: var(--color-brand-light);
+        color: var(--color-brand-primary);
+        border-radius: var(--radius-sm);
+        font-size: 0.8125rem;
+        font-weight: 600;
+    }
+    
+    .result-keyword {
+        display: inline-flex;
+        align-items: center;
+        padding: var(--space-xs) var(--space-sm);
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-secondary);
+        border-radius: var(--radius-sm);
+        font-size: 0.8125rem;
+    }
+    
+    /* Abstract */
+    .result-abstract {
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    /* Score Badge */
+    .score-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: var(--space-sm) var(--space-md);
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        border-radius: var(--radius-sm);
+        color: white;
+    }
+    
+    .score-value {
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1;
+    }
+    
+    .score-label {
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        opacity: 0.9;
+        margin-top: 2px;
+    }
+    
+    /* Result Actions */
+    .result-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin-top: var(--space-md);
+        padding-top: var(--space-md);
+        border-top: 1px solid var(--color-border-primary);
+    }
+    
+    .action-button {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        padding: var(--space-sm) var(--space-md);
+        background: var(--color-bg-tertiary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        color: var(--color-text-secondary);
+        font-family: var(--font-body);
+        font-size: 0.8125rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .action-button:hover {
+        background: var(--color-brand-light);
+        border-color: var(--color-brand-primary);
+        color: var(--color-brand-primary);
+    }
+    
+    .action-button.primary {
+        background: var(--color-brand-light);
+        border-color: var(--color-brand-primary);
+        color: var(--color-brand-primary);
+    }
+    
+    .action-button.primary:hover {
+        background: var(--color-brand-primary);
+        color: white;
+    }
+    
+    /* Author Dropdown */
+    .author-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .author-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: var(--space-xs);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-lg);
+        min-width: 200px;
+        z-index: 50;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: all var(--transition-fast);
+    }
+    
+    .author-dropdown:hover .author-menu {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .author-menu-item {
+        display: block;
+        padding: var(--space-sm) var(--space-md);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all var(--transition-fast);
+    }
+    
+    .author-menu-item:hover {
+        background: var(--color-bg-tertiary);
+        color: var(--color-brand-primary);
+    }
+    
+    /* ========================================
+       Empty States
+       ======================================== */
+    .empty-state {
+        text-align: center;
+        padding: var(--space-3xl) var(--space-xl);
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: var(--color-text-tertiary);
+        opacity: 0.5;
+        margin-bottom: var(--space-lg);
+    }
+    
+    .empty-state-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-sm);
+    }
+    
+    .empty-state-description {
+        color: var(--color-text-secondary);
+        margin: 0 0 var(--space-lg);
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    .empty-state-suggestions {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+    
+    .suggestion-link {
+        padding: var(--space-sm) var(--space-md);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-full);
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all var(--transition-fast);
+    }
+    
+    .suggestion-link:hover {
+        background: var(--color-brand-light);
+        border-color: var(--color-brand-primary);
+        color: var(--color-brand-primary);
+    }
+    
+    /* ========================================
+       Animations
+       ======================================== */
+    .result-card {
+        animation: fadeInUp 0.4s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    .result-card:nth-child(1) { animation-delay: 0.05s; }
+    .result-card:nth-child(2) { animation-delay: 0.1s; }
+    .result-card:nth-child(3) { animation-delay: 0.15s; }
+    .result-card:nth-child(4) { animation-delay: 0.2s; }
+    .result-card:nth-child(5) { animation-delay: 0.25s; }
+    .result-card:nth-child(6) { animation-delay: 0.3s; }
+    .result-card:nth-child(7) { animation-delay: 0.35s; }
+    .result-card:nth-child(8) { animation-delay: 0.4s; }
+    .result-card:nth-child(9) { animation-delay: 0.45s; }
+    .result-card:nth-child(10) { animation-delay: 0.5s; }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* ========================================
+       Responsive
+       ======================================== */
+    @media (max-width: 640px) {
+        .result-content {
+            flex-direction: column;
+        }
+        
+        .result-score {
+            order: -1;
+            align-self: flex-start;
+        }
+        
+        .score-badge {
+            flex-direction: row;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-sm);
+        }
+        
+        .score-value {
+            font-size: 1rem;
+        }
+        
+        .results-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--space-md);
+        }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-10 mx-auto">
-        <!-- Search Form -->
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <form action="{{ url_for('search') }}" method="GET">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white">
-                            <i class="bi bi-search"></i>
-                        </span>
-                        <input type="text" class="form-control form-control-lg" name="q"
-                               value="{{ query }}" placeholder="Search publications...">
-                        <button class="btn btn-primary px-4" type="submit">Search</button>
-                    </div>
-                </form>
-            </div>
+<div class="search-page">
+    <!-- Search Header -->
+    <header class="search-header">
+        <div class="search-box">
+            <form action="{{ url_for('search') }}" method="GET" class="search-form">
+                <i class="bi bi-search search-icon"></i>
+                <input 
+                    type="text" 
+                    name="q" 
+                    class="search-input"
+                    value="{{ query }}" 
+                    placeholder="Search publications..."
+                >
+                <button type="submit" class="search-button">
+                    <span>Search</span>
+                </button>
+            </form>
         </div>
-
-        <!-- Results Section -->
-        {% if query %}
-            {% if results %}
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="text-muted mb-0">
-                        Found {{ results|length }} results for "{{ query }}"
-                    </h5>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown">
-                            Sort by Relevance
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item active" href="#">Relevance</a></li>
-                            <li><a class="dropdown-item" href="#">Year (Newest)</a></li>
-                            <li><a class="dropdown-item" href="#">Year (Oldest)</a></li>
-                        </ul>
+    </header>
+    
+    <!-- Results Section -->
+    {% if query %}
+        {% if results %}
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="results-count">
+                    Found <strong>{{ results|length }}</strong> results for 
+                    "<span class="query-text">{{ query }}</span>"
+                </div>
+                
+                <div class="sort-dropdown">
+                    <button class="sort-button">
+                        <i class="bi bi-sort-down"></i>
+                        <span>Sort by Relevance</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="sort-menu">
+                        <button class="sort-option active">Relevance</button>
+                        <button class="sort-option">Year (Newest)</button>
+                        <button class="sort-option">Year (Oldest)</button>
                     </div>
                 </div>
-
-                <!-- Results List -->
-                <div class="results-list">
-                    {% for result in results %}
-                    <div class="card mb-3 result-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <!-- Title -->
-                                    <h5 class="card-title mb-2">
-                                        {% if result.publication_link %}
-                                            <a href="{{ result.publication_link }}" target="_blank"
-                                               class="text-decoration-none">
-                                                {{ result.title }}
-                                                <i class="bi bi-box-arrow-up-right small"></i>
-                                            </a>
-                                        {% else %}
-                                            {{ result.title }}
-                                        {% endif %}
-                                    </h5>
-
-                                    <!-- Authors -->
-                                    <p class="mb-2">
-                                        <i class="bi bi-people text-muted"></i>
-                                        {% for author in result.authors %}
-                                            {% if result.author_profiles and author in result.author_profiles %}
-                                                <a href="{{ result.author_profiles[author] }}"
-                                                   target="_blank" class="text-success">
-                                                    {{ author }}</a>{% if not loop.last %}, {% endif %}
-                                            {% else %}
-                                                {{ author }}{% if not loop.last %}, {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    </p>
-
-                                    <!-- Year and Abstract -->
-                                    <p class="mb-2">
-                                        <span class="badge bg-secondary">{{ result.year }}</span>
-                                        {% if result.keywords %}
-                                            {% for kw in result.keywords[:3] %}
-                                                <span class="badge bg-light text-dark">{{ kw }}</span>
-                                            {% endfor %}
-                                        {% endif %}
-                                    </p>
-
-                                    {% if result.abstract %}
-                                    <p class="card-text text-muted small">
-                                        {{ result.abstract[:300] }}{% if result.abstract|length > 300 %}...{% endif %}
-                                    </p>
-                                    {% endif %}
-                                </div>
-
-                                <!-- Score Badge -->
-                                <div class="text-end ms-3">
-                                    <span class="badge bg-primary" title="Relevance Score">
-                                        {{ "%.2f"|format(result.score) }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Links -->
-                            <div class="mt-3 pt-2 border-top">
+            </div>
+            
+            <!-- Results List -->
+            <div class="results-list">
+                {% for result in results %}
+                <article class="result-card">
+                    <div class="result-content">
+                        <div class="result-main">
+                            <!-- Title -->
+                            <h2 class="result-title">
                                 {% if result.publication_link %}
-                                    <a href="{{ result.publication_link }}" target="_blank"
-                                       class="btn btn-sm btn-outline-primary me-2">
-                                        <i class="bi bi-file-text"></i> View Publication
+                                    <a href="{{ result.publication_link }}" target="_blank" rel="noopener">
+                                        {{ result.title }}
+                                        <i class="bi bi-box-arrow-up-right external-icon"></i>
+                                    </a>
+                                {% else %}
+                                    {{ result.title }}
+                                {% endif %}
+                            </h2>
+                            
+                            <!-- Authors -->
+                            <div class="result-authors">
+                                <i class="bi bi-people result-authors-icon"></i>
+                                {% for author in result.authors %}
+                                    {% if result.author_profiles and author in result.author_profiles %}
+                                        <a href="{{ result.author_profiles[author] }}" target="_blank" class="author-link">{{ author }}</a>{% if not loop.last %},{% endif %}
+                                    {% else %}
+                                        {{ author }}{% if not loop.last %},{% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Meta -->
+                            <div class="result-meta">
+                                <span class="result-year">{{ result.year }}</span>
+                                {% if result.keywords %}
+                                    {% for kw in result.keywords[:3] %}
+                                        <span class="result-keyword">{{ kw }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Abstract -->
+                            {% if result.abstract %}
+                            <p class="result-abstract">
+                                {{ result.abstract[:300] }}{% if result.abstract|length > 300 %}...{% endif %}
+                            </p>
+                            {% endif %}
+                            
+                            <!-- Actions -->
+                            <div class="result-actions">
+                                {% if result.publication_link %}
+                                    <a href="{{ result.publication_link }}" target="_blank" class="action-button primary">
+                                        <i class="bi bi-file-text"></i>
+                                        <span>View Publication</span>
                                     </a>
                                 {% endif %}
                                 {% if result.author_profiles %}
-                                    <div class="dropdown d-inline">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                type="button" data-bs-toggle="dropdown">
-                                            <i class="bi bi-person"></i> Author Profiles
+                                    <div class="author-dropdown">
+                                        <button class="action-button">
+                                            <i class="bi bi-person"></i>
+                                            <span>Author Profiles</span>
+                                            <i class="bi bi-chevron-down"></i>
                                         </button>
-                                        <ul class="dropdown-menu">
+                                        <div class="author-menu">
                                             {% for author, url in result.author_profiles.items() %}
-                                                <li>
-                                                    <a class="dropdown-item" href="{{ url }}" target="_blank">
-                                                        {{ author }}
-                                                    </a>
-                                                </li>
+                                                <a href="{{ url }}" target="_blank" class="author-menu-item">
+                                                    {{ author }}
+                                                </a>
                                             {% endfor %}
-                                        </ul>
+                                        </div>
                                     </div>
                                 {% endif %}
                             </div>
                         </div>
+                        
+                        <!-- Score -->
+                        <div class="result-score">
+                            <div class="score-badge" title="Relevance Score">
+                                <span class="score-value">{{ "%.2f"|format(result.score) }}</span>
+                                <span class="score-label">Score</span>
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
-                </div>
-
-            {% else %}
-                <!-- No Results -->
-                <div class="text-center py-5">
-                    <i class="bi bi-search display-1 text-muted"></i>
-                    <h4 class="mt-3">No results found</h4>
-                    <p class="text-muted">
-                        No publications match your search for "{{ query }}".
-                    </p>
-                    <p class="text-muted">
-                        Try different keywords or check your spelling.
-                    </p>
-                </div>
-            {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+            
         {% else %}
-            <!-- No Query -->
-            <div class="text-center py-5">
-                <i class="bi bi-journals display-1 text-muted"></i>
-                <h4 class="mt-3">Start Searching</h4>
-                <p class="text-muted">
-                    Enter a search query to find publications.
-                </p>
-                <div class="mt-3">
-                    <small class="text-muted">
-                        Try searching for:
-                        <a href="{{ url_for('search', q='deep learning') }}">deep learning</a>,
-                        <a href="{{ url_for('search', q='healthcare') }}">healthcare</a>,
-                        <a href="{{ url_for('search', q='optimization') }}">optimization</a>
-                    </small>
+            <!-- No Results -->
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="bi bi-search"></i>
                 </div>
+                <h3 class="empty-state-title">No results found</h3>
+                <p class="empty-state-description">
+                    No publications match your search for "<strong>{{ query }}</strong>". 
+                    Try different keywords or check your spelling.
+                </p>
             </div>
         {% endif %}
-    </div>
+        
+    {% else %}
+        <!-- No Query -->
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <i class="bi bi-journals"></i>
+            </div>
+            <h3 class="empty-state-title">Start Searching</h3>
+            <p class="empty-state-description">
+                Enter a search query to find publications from the research database.
+            </p>
+            <div class="empty-state-suggestions">
+                <a href="{{ url_for('search', q='deep learning') }}" class="suggestion-link">deep learning</a>
+                <a href="{{ url_for('search', q='healthcare') }}" class="suggestion-link">healthcare</a>
+                <a href="{{ url_for('search', q='optimization') }}" class="suggestion-link">optimization</a>
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

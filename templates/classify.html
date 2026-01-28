@@ -5,59 +5,99 @@
 {% block extra_css %}
 <style>
     .classify-page {
-        max-width: 900px;
+        max-width: 1400px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
     }
     
-    /* Page Header with Glow */
+    /* Compact Page Header */
     .page-header {
         text-align: center;
-        padding: var(--space-2xl) 0;
+        padding: var(--space-md) 0 var(--space-lg);
         position: relative;
+        /* margin-bottom: var(--space-md); */
     }
+    .main-content { flex: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: var(--space-x); }
     
     .page-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, var(--color-brand-light) 0%, transparent 70%);
-        pointer-events: none;
-        opacity: 0.6;
-        z-index: -1;
+        display: none;
     }
     
     .page-icon {
-        width: 80px;
-        height: 80px;
+        width: 48px;
+        height: 48px;
         background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto var(--space-lg);
-        font-size: 2.25rem;
+        margin: 0 auto var(--space-xs);
+        font-size: 1.25rem;
         color: white;
-        box-shadow: 0 8px 32px rgba(45, 90, 61, 0.3);
+        box-shadow: 0 4px 16px rgba(45, 90, 61, 0.2);
     }
     
     .page-header h1 {
         font-family: var(--font-display);
-        font-size: 2.25rem;
+        font-size: 1.5rem;
         font-weight: 500;
         color: var(--color-text-primary);
-        margin: 0 0 var(--space-sm);
+        margin: 0 0 var(--space-xs);
     }
     
     .page-header p {
         color: var(--color-text-secondary);
-        font-size: 1.0625rem;
+        font-size: 0.875rem;
         margin: 0;
         max-width: 500px;
         margin: 0 auto;
+    }
+    
+    /* Two-Column Layout Container - Dynamic based on results */
+    .classify-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+        align-items: start;
+    }
+    
+    /* When result exists, activate two-column layout */
+    .classify-container:has(.result-card) {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-xl);
+    }
+    
+    .form-column {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .results-column {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-lg);
+    }
+    
+    /* Sticky form only in two-column layout */
+    .classify-container:has(.result-card) .form-column .classify-card {
+        position: sticky;
+        top: var(--space-lg);
+    }
+    
+    @media (max-width: 1024px) {
+        .classify-container,
+        .classify-container:has(.result-card) {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-column .classify-card {
+            position: static;
+        }
+    }
+    
+    .hidden-result {
+        display: none;
     }
     
     /* Glass Cards */
@@ -101,7 +141,7 @@
     /* Textarea */
     .classify-textarea {
         width: 100%;
-        min-height: 180px;
+        min-height: 250px;
         padding: var(--space-lg);
         font-family: var(--font-body);
         font-size: 0.9375rem;
@@ -133,6 +173,25 @@
         gap: var(--space-md);
     }
     
+    .classify-actions button {
+        flex: 1;
+        min-width: 100px;
+    }
+    
+    .classify-actions button span {
+        font-size: 0.875rem;
+    }
+    
+    @media (max-width: 640px) {
+        .classify-actions {
+            flex-direction: column;
+        }
+        
+        .classify-actions button {
+            width: 100%;
+        }
+    }
+    
     /* Result Card Animation */
     .result-card {
         animation: slideUp 0.5s ease-out;
@@ -146,8 +205,8 @@
     /* Prediction Display */
     .prediction-display {
         text-align: center;
-        padding: var(--space-xl);
-        margin-bottom: var(--space-xl);
+        padding: var(--space-lg);
+        margin-bottom: var(--space-lg);
     }
     
     .prediction-label {
@@ -163,10 +222,10 @@
         display: inline-flex;
         align-items: center;
         gap: var(--space-md);
-        padding: var(--space-lg) var(--space-2xl);
+        padding: var(--space-md) var(--space-lg);
         border-radius: var(--radius-lg);
         font-family: var(--font-display);
-        font-size: 1.5rem;
+        font-size: 1.25rem;
         font-weight: 600;
         backdrop-filter: blur(8px);
     }
@@ -263,33 +322,35 @@
     
     /* Text Preview */
     .text-preview {
-        margin-top: var(--space-xl);
-        padding-top: var(--space-xl);
+        margin-top: var(--space-lg);
+        padding-top: var(--space-lg);
         border-top: 1px solid var(--color-border-primary);
     }
     
     .text-preview h3 {
         font-family: var(--font-display);
-        font-size: 1rem;
+        font-size: 0.9375rem;
         font-weight: 600;
         color: var(--color-text-primary);
         margin: 0 0 var(--space-md);
     }
     
     .text-preview-content {
-        padding: var(--space-lg);
+        padding: var(--space-md);
         background: var(--color-bg-tertiary);
         border-radius: var(--radius-sm);
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         color: var(--color-text-secondary);
-        line-height: 1.7;
+        line-height: 1.6;
+        max-height: 150px;
+        overflow-y: auto;
     }
     
     /* Model Info */
     .model-info-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: var(--space-xl);
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
     }
     
     @media (max-width: 640px) {
@@ -342,161 +403,170 @@
             <i class="bi bi-tags"></i>
         </div>
         <h1>Document Classification</h1>
-        <p>Classify documents into Business, Entertainment, or Health categories using Naive Bayes</p>
+        <p>Classify documents into Business, Entertainment, or Health categories</p>
     </header>
     
-    <!-- Classification Form -->
-    <div class="classify-card">
-        <div class="card-header">
-            <i class="bi bi-file-text"></i>
-            <h2>Enter Text to Classify</h2>
-        </div>
-        <div class="card-body">
-            <form action="{{ url_for('classify') }}" method="POST">
-                <textarea class="classify-textarea" name="text" 
-                          placeholder="Paste or type your document text here...">{{ text if text else '' }}</textarea>
-                
-                <div class="classify-actions">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        <i class="bi bi-cpu"></i>
-                        <span>Classify Document</span>
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="loadSampleText()">
-                        <i class="bi bi-lightning"></i>
-                        <span>Load Sample</span>
-                    </button>
+    <!-- Two-Column Layout -->
+    <div class="classify-container">
+        <!-- Left Column: Form -->
+        <div class="form-column">
+            <!-- Classification Form -->
+            <div class="classify-card">
+                <div class="card-header">
+                    <i class="bi bi-file-text"></i>
+                    <h2>Enter Text to Classify</h2>
                 </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Classification Result -->
-    {% if result %}
-    <div class="classify-card result-card">
-        <div class="card-header">
-            <i class="bi bi-graph-up"></i>
-            <h2>Classification Result</h2>
-        </div>
-        <div class="card-body">
-            {% if result.error %}
-                <div class="error-alert">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <span>{{ result.error }}</span>
+                <div class="card-body">
+                    <form action="{{ url_for('classify') }}" method="POST">
+                        <textarea class="classify-textarea" name="text" 
+                                  placeholder="Paste or type your document text here...">{{ text if text else '' }}</textarea>
+                        
+                        <div class="classify-actions">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-cpu"></i>
+                                <span>Classify</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="loadSampleText()">
+                                <i class="bi bi-lightning"></i>
+                                <span>Sample</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            {% else %}
-                <!-- Predicted Category -->
-                <div class="prediction-display">
-                    <div class="prediction-label">Predicted Category</div>
-                    <div class="prediction-badge {% if result.category == 'Business' %}business{% elif result.category == 'Entertainment' %}entertainment{% elif result.category == 'Health' %}health{% endif %}">
-                        {% if result.category == 'Business' %}
-                            <i class="bi bi-briefcase"></i>
-                        {% elif result.category == 'Entertainment' %}
-                            <i class="bi bi-film"></i>
-                        {% elif result.category == 'Health' %}
-                            <i class="bi bi-heart-pulse"></i>
-                        {% endif %}
-                        {{ result.category }}
-                    </div>
-                    <div class="prediction-confidence">
-                        Confidence: <strong>{{ (result.confidence * 100)|round(1) }}%</strong>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- Right Column: Results & Model Info -->
+        <div class="results-column">
+            <!-- Classification Result -->
+            {% if result %}
+            <div class="classify-card result-card">
+                <div class="card-header">
+                    <i class="bi bi-graph-up"></i>
+                    <h2>Classification Result</h2>
                 </div>
-                
-                <!-- Probability Distribution -->
-                <div class="probability-section">
-                    <h3>Probability Distribution</h3>
-                    {% for category, prob in result.probabilities.items() %}
-                    <div class="probability-item">
-                        <div class="probability-header">
-                            <span class="probability-category {% if category == 'Business' %}business{% elif category == 'Entertainment' %}entertainment{% elif category == 'Health' %}health{% endif %}">
-                                {% if category == 'Business' %}
+                <div class="card-body">
+                    {% if result.error %}
+                        <div class="error-alert">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span>{{ result.error }}</span>
+                        </div>
+                    {% else %}
+                        <!-- Predicted Category -->
+                        <div class="prediction-display">
+                            <div class="prediction-label">Predicted Category</div>
+                            <div class="prediction-badge {% if result.category == 'Business' %}business{% elif result.category == 'Entertainment' %}entertainment{% elif result.category == 'Health' %}health{% endif %}">
+                                {% if result.category == 'Business' %}
                                     <i class="bi bi-briefcase"></i>
-                                {% elif category == 'Entertainment' %}
+                                {% elif result.category == 'Entertainment' %}
                                     <i class="bi bi-film"></i>
-                                {% elif category == 'Health' %}
+                                {% elif result.category == 'Health' %}
                                     <i class="bi bi-heart-pulse"></i>
                                 {% endif %}
-                                {{ category }}
-                            </span>
-                            <span class="probability-value">{{ (prob * 100)|round(1) }}%</span>
+                                {{ result.category }}
+                            </div>
+                            <div class="prediction-confidence">
+                                Confidence: <strong>{{ (result.confidence * 100)|round(1) }}%</strong>
+                            </div>
                         </div>
-                        <div class="probability-bar">
-                            <div class="probability-fill {% if category == 'Business' %}business{% elif category == 'Entertainment' %}entertainment{% elif category == 'Health' %}health{% endif %}" 
-                                 style="width: {{ prob * 100 }}%"></div>
+                        
+                        <!-- Probability Distribution -->
+                        <div class="probability-section">
+                            <h3>Probability Distribution</h3>
+                            {% for category, prob in result.probabilities.items() %}
+                            <div class="probability-item">
+                                <div class="probability-header">
+                                    <span class="probability-category {% if category == 'Business' %}business{% elif category == 'Entertainment' %}entertainment{% elif category == 'Health' %}health{% endif %}">
+                                        {% if category == 'Business' %}
+                                            <i class="bi bi-briefcase"></i>
+                                        {% elif category == 'Entertainment' %}
+                                            <i class="bi bi-film"></i>
+                                        {% elif category == 'Health' %}
+                                            <i class="bi bi-heart-pulse"></i>
+                                        {% endif %}
+                                        {{ category }}
+                                    </span>
+                                    <span class="probability-value">{{ (prob * 100)|round(1) }}%</span>
+                                </div>
+                                <div class="probability-bar">
+                                    <div class="probability-fill {% if category == 'Business' %}business{% elif category == 'Entertainment' %}entertainment{% elif category == 'Health' %}health{% endif %}" 
+                                         style="width: {{ prob * 100 }}%"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
+                        
+                        <!-- Text Preview -->
+                        {% if result.text_preview %}
+                        <div class="text-preview">
+                            <h3>Analyzed Text</h3>
+                            <div class="text-preview-content">{{ result.text_preview }}</div>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Model Information -->
+            {% if model_info %}
+            <div class="classify-card">
+                <div class="card-header">
+                    <i class="bi bi-info-circle"></i>
+                    <h2>Model Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="model-info-grid">
+                        <ul class="model-info-list">
+                            <li>
+                                Status
+                                <strong>
+                                    {% if model_info.status == 'Model loaded' %}
+                                        <span class="badge badge-success">Ready</span>
+                                    {% else %}
+                                        <span class="badge badge-warning">Not Loaded</span>
+                                    {% endif %}
+                                </strong>
+                            </li>
+                            <li>Algorithm <strong>Multinomial Naive Bayes</strong></li>
+                            <li>
+                                Categories
+                                <strong>
+                                    {% for cat in model_info.categories %}
+                                        <span class="badge badge-neutral">{{ cat }}</span>
+                                    {% endfor %}
+                                </strong>
+                            </li>
+                        </ul>
+                        <ul class="model-info-list">
+                            <li>
+                                Training Accuracy
+                                <strong>
+                                    {% if model_info.accuracy is defined and model_info.accuracy != 'N/A' %}
+                                        {{ (model_info.accuracy * 100)|round(1) }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </strong>
+                            </li>
+                            <li>Training Samples <strong>{{ model_info.total_samples if model_info.total_samples is defined else 'N/A' }}</strong></li>
+                            <li>
+                                Trained
+                                <strong>
+                                    {% if model_info.trained_at is defined and model_info.trained_at != 'N/A' %}
+                                        {{ model_info.trained_at[:10] }}
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </strong>
+                            </li>
+                        </ul>
                     </div>
-                    {% endfor %}
                 </div>
-                
-                <!-- Text Preview -->
-                {% if result.text_preview %}
-                <div class="text-preview">
-                    <h3>Analyzed Text</h3>
-                    <div class="text-preview-content">{{ result.text_preview }}</div>
-                </div>
-                {% endif %}
+            </div>
             {% endif %}
         </div>
     </div>
-    {% endif %}
-    
-    <!-- Model Information -->
-    {% if model_info %}
-    <div class="classify-card">
-        <div class="card-header">
-            <i class="bi bi-info-circle"></i>
-            <h2>Model Information</h2>
-        </div>
-        <div class="card-body">
-            <div class="model-info-grid">
-                <ul class="model-info-list">
-                    <li>
-                        Status
-                        <strong>
-                            {% if model_info.status == 'Model loaded' %}
-                                <span class="badge badge-success">Ready</span>
-                            {% else %}
-                                <span class="badge badge-warning">Not Loaded</span>
-                            {% endif %}
-                        </strong>
-                    </li>
-                    <li>Algorithm <strong>Multinomial Naive Bayes</strong></li>
-                    <li>
-                        Categories
-                        <strong>
-                            {% for cat in model_info.categories %}
-                                <span class="badge badge-neutral">{{ cat }}</span>
-                            {% endfor %}
-                        </strong>
-                    </li>
-                </ul>
-                <ul class="model-info-list">
-                    <li>
-                        Training Accuracy
-                        <strong>
-                            {% if model_info.accuracy is defined and model_info.accuracy != 'N/A' %}
-                                {{ (model_info.accuracy * 100)|round(1) }}%
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </strong>
-                    </li>
-                    <li>Training Samples <strong>{{ model_info.total_samples if model_info.total_samples is defined else 'N/A' }}</strong></li>
-                    <li>
-                        Trained
-                        <strong>
-                            {% if model_info.trained_at is defined and model_info.trained_at != 'N/A' %}
-                                {{ model_info.trained_at[:10] }}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </strong>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
 

@@ -2,9 +2,10 @@
 Query Processor for Search Engine
 
 Handles query parsing, preprocessing, and retrieval with ranking.
-Supports partial matching and synonym expansion.
+Supports partial matching, synonym expansion, and pagination.
 """
 from collections import defaultdict
+import heapq
 
 from indexer.preprocessor import TextPreprocessor
 from indexer.ranking import get_ranker, BM25Ranker
@@ -14,9 +15,10 @@ import config
 class QueryProcessor:
     """
     Processes search queries and retrieves ranked results.
+    Optimized for fast response times with pagination support.
     """
 
-    def __init__(self, inverted_index, ranking_algorithm='bm25'):
+    def __init__(self, inverted_index, ranking_algorithm='tfidf'):
         """
         Initialize the query processor.
 
@@ -31,6 +33,10 @@ class QueryProcessor:
             use_lemmatization=True,
             expand_synonyms=True
         )
+        
+        # Cache for partial matches (built lazily)
+        self._partial_match_cache = {}
+        self._cache_version = None
 
     def parse_query(self, query):
         """
@@ -52,20 +58,182 @@ class QueryProcessor:
 
         return processed, original
 
-    def search(self, query, limit=None):
+    def _get_partial_matches_optimized(self, term, all_terms):
         """
-        Search for documents matching the query.
+        Get partial matches with caching for better performance.
+        
+        Args:
+            term: Query term to match
+            all_terms: Set of all indexed terms
+            
+        Returns:
+            List of matching terms
+        """
+        # Check if cache needs rebuilding (index changed)
+        current_version = len(all_terms)
+        if self._cache_version != current_version:
+            self._partial_match_cache.clear()
+            self._cache_version = current_version
+        
+        # Check cache
+        if term in self._partial_match_cache:
+            return self._partial_match_cache[term]
+        
+        # Find matches (limited to avoid excessive processing)
+        matches = []
+        match_limit = 50  # Limit partial matches per term
+        
+        for indexed_term in all_terms:
+            if len(matches) >= match_limit:
+                break
+            if term == indexed_term:
+                matches.append(indexed_term)
+            elif indexed_term.startswith(term) or term.startswith(indexed_term):
+                matches.append(indexed_term)
+        
+        # Cache result
+        self._partial_match_cache[term] = matches
+        return matches
+
+    def search(self, query, limit=None, page=1, per_page=20, sort_by='relevance'):
+        """
+        Search for documents matching the query with pagination and sorting.
 
         Args:
             query: Search query string
-            limit: Maximum number of results (default from config)
+            limit: Maximum number of results (default from config) - for backward compatibility
+            page: Page number (1-indexed)
+            per_page: Results per page
+            sort_by: Sort order - 'relevance', 'year_desc', 'year_asc'
 
+        Returns:
+            Dictionary with results and pagination info:
+            {
+                'results': List of (doc_id, document_data, score) tuples,
+                'total': Total number of matching documents,
+                'page': Current page,
+                'per_page': Results per page,
+                'total_pages': Total number of pages
+            }
+        """
+        # Handle backward compatibility - if limit is set, use old behavior
+        if limit is not None:
+            return self._search_simple(query, limit)
+        
+        if not query or not query.strip():
+            return {'results': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 0}
+
+        # Parse query
+        query_terms, original_terms = self.parse_query(query)
+
+        if not query_terms:
+            return {'results': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 0}
+
+        # Calculate term frequencies in query
+        query_term_freqs = defaultdict(int)
+        for term in query_terms:
+            query_term_freqs[term] += 1
+
+        # Build posting lists cache and find candidate documents
+        postings_cache = {}
+        doc_term_matches = defaultdict(set)  # doc_id -> set of matched terms
+        
+        for term in query_terms:
+            postings = self.index.get_postings(term)
+            postings_cache[term] = {doc_id: (freq, field) for doc_id, freq, field in postings}
+            for doc_id, _, _ in postings:
+                doc_term_matches[doc_id].add(term)
+
+        # Limited partial matching (only if few exact matches)
+        if len(doc_term_matches) < 100:
+            all_terms = self.index.get_all_terms()
+            for term in query_terms:
+                partial_matches = self._get_partial_matches_optimized(term, all_terms)
+                for match in partial_matches:
+                    if match not in postings_cache:
+                        postings = self.index.index.get(match, [])
+                        for doc_id, _, _ in postings:
+                            doc_term_matches[doc_id].add(term)
+
+        candidate_docs = set(doc_term_matches.keys())
+        
+        if not candidate_docs:
+            return {'results': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 0}
+
+        # Score documents efficiently
+        scored_docs = []
+        num_query_terms = len(query_terms)
+        
+        for doc_id in candidate_docs:
+            doc = self.index.get_document(doc_id)
+            if doc:
+                score = self.ranker.score_document(doc_id, query_terms, query_term_freqs)
+                
+                # Boost score based on term coverage (use cached matches)
+                if num_query_terms > 1:
+                    matched_terms = len(doc_term_matches[doc_id])
+                    coverage = matched_terms / num_query_terms
+                    score *= (1 + coverage)
+                
+                scored_docs.append((score, doc_id, doc))
+
+        # Sort based on sort_by parameter
+        if sort_by == 'year_desc':
+            # Sort by year descending, then by score
+            scored_docs.sort(key=lambda x: (self._get_year_for_sort(x[2]), x[0]), reverse=True)
+        elif sort_by == 'year_asc':
+            # Sort by year ascending, then by score descending
+            scored_docs.sort(key=lambda x: (-self._get_year_for_sort(x[2]), -x[0]))
+        else:
+            # Default: sort by relevance score descending
+            scored_docs.sort(key=lambda x: x[0], reverse=True)
+        
+        # Pagination
+        total = len(scored_docs)
+        total_pages = (total + per_page - 1) // per_page if total > 0 else 0
+        page = max(1, min(page, total_pages)) if total_pages > 0 else 1
+        
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        
+        # Extract results for current page
+        results = [(doc_id, doc, score) for score, doc_id, doc in scored_docs[start_idx:end_idx]]
+
+        return {
+            'results': results,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'total_pages': total_pages
+        }
+    
+    def _get_year_for_sort(self, doc):
+        """
+        Extract year from document for sorting.
+        
+        Args:
+            doc: Document dictionary
+            
+        Returns:
+            Year as integer, or 0 if not available
+        """
+        year = doc.get('year', 0)
+        try:
+            return int(year)
+        except (ValueError, TypeError):
+            return 0
+    
+    def _search_simple(self, query, limit):
+        """
+        Simple search without pagination (backward compatibility).
+        
+        Args:
+            query: Search query string
+            limit: Maximum number of results
+            
         Returns:
             List of (doc_id, document_data, score) tuples
         """
-        if limit is None:
-            limit = config.SEARCH_RESULTS_LIMIT
-
         if not query or not query.strip():
             return []
 
@@ -80,52 +248,56 @@ class QueryProcessor:
         for term in query_terms:
             query_term_freqs[term] += 1
 
-        # Find candidate documents
-        candidate_docs = set()
+        # Build posting lists cache and find candidate documents
+        postings_cache = {}
+        doc_term_matches = defaultdict(set)
+        
         for term in query_terms:
             postings = self.index.get_postings(term)
+            postings_cache[term] = {doc_id: (freq, field) for doc_id, freq, field in postings}
             for doc_id, _, _ in postings:
-                candidate_docs.add(doc_id)
+                doc_term_matches[doc_id].add(term)
 
-        # Also search for partial matches
-        all_terms = self.index.get_all_terms()
-        for term in query_terms:
-            partial_matches = self.preprocessor.get_partial_matches(term, all_terms)
-            for match in partial_matches:
-                postings = self.index.index.get(match, [])
-                for doc_id, _, _ in postings:
-                    candidate_docs.add(doc_id)
+        # Limited partial matching
+        if len(doc_term_matches) < 100:
+            all_terms = self.index.get_all_terms()
+            for term in query_terms:
+                partial_matches = self._get_partial_matches_optimized(term, all_terms)
+                for match in partial_matches:
+                    if match not in postings_cache:
+                        postings = self.index.index.get(match, [])
+                        for doc_id, _, _ in postings:
+                            doc_term_matches[doc_id].add(term)
 
+        candidate_docs = set(doc_term_matches.keys())
+        
         if not candidate_docs:
             return []
 
-        # Score documents
-        results = []
+        # Use heap for top-k selection (more efficient than sorting all)
+        num_query_terms = len(query_terms)
+        top_k = []
+        
         for doc_id in candidate_docs:
             doc = self.index.get_document(doc_id)
             if doc:
                 score = self.ranker.score_document(doc_id, query_terms, query_term_freqs)
-
-                # Bonus for multi-term matches
-                matched_terms = 0
-                for term in query_terms:
-                    postings = self.index.get_postings(term)
-                    for did, _, _ in postings:
-                        if did == doc_id:
-                            matched_terms += 1
-                            break
-
-                # Boost score based on term coverage
-                if len(query_terms) > 1:
-                    coverage = matched_terms / len(query_terms)
+                
+                if num_query_terms > 1:
+                    matched_terms = len(doc_term_matches[doc_id])
+                    coverage = matched_terms / num_query_terms
                     score *= (1 + coverage)
+                
+                if len(top_k) < limit:
+                    heapq.heappush(top_k, (score, doc_id, doc))
+                elif score > top_k[0][0]:
+                    heapq.heapreplace(top_k, (score, doc_id, doc))
 
-                results.append((doc_id, doc, score))
-
-        # Sort by score descending
+        # Extract and sort results
+        results = [(doc_id, doc, score) for score, doc_id, doc in top_k]
         results.sort(key=lambda x: x[2], reverse=True)
 
-        return results[:limit]
+        return results
 
     def search_by_field(self, query, field):
         """

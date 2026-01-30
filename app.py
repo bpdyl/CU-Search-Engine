@@ -78,12 +78,145 @@ def init_app():
     # Initialize crawl history (creates mock data if needed)
     print("Initializing crawl scheduler...")
     _ = crawl_history.load_history()
+    
+    # Set up scheduler callback and start background scheduler
+    crawl_scheduler.set_crawl_callback(_crawl_callback)
+    crawl_scheduler.start_background_scheduler()
+    schedule_info = crawl_scheduler.get_schedule_info()
+    print("[OK] Background crawl scheduler started!")
+    print(f"  Interval: {schedule_info['interval_display']}")
+    print(f"  Next crawl: {schedule_info['next_crawl_display']}")
+    print(f"  Status: Checks every 1 minute")
 
 
 def log_message(msg):
     """Add message to crawler log."""
     crawler_log.append(msg)
     print(msg)
+
+
+def _crawl_callback():
+    """Callback function for scheduled crawls."""
+    global query_processor, crawler_log
+    try:
+        log_message("=" * 60)
+        log_message("[SCHEDULED CRAWL] Starting scheduled crawl...")
+        log_message("=" * 60)
+
+        # Track crawl timing
+        started_at = datetime.now()
+        crawl_status = "completed"
+        crawl_errors = []
+        crawler = None
+
+        try:
+            log_message('Crawler started. This may take several minutes...')
+
+            crawler = PUREPortalCrawler(callback=log_message)
+            publications = crawler.crawl(max_authors=50)
+
+            completed_at = datetime.now()
+
+            if publications:
+                # Save crawled data
+                crawler.save_data()
+
+                # Build index
+                inverted_index.build_from_publications(publications)
+                inverted_index.save()
+
+                # Reinitialize query processor
+                query_processor = QueryProcessor(inverted_index)
+
+                # Get detailed metrics from crawler
+                crawl_metrics = crawler.get_crawl_metrics()
+
+                # Record crawl in history (basic)
+                crawl_stats = {
+                    "authors_crawled": len(crawler.author_profiles),
+                    "publications_found": crawl_metrics.get('total_publications_found', len(publications)),
+                    "unique_publications": crawl_metrics.get('unique_publications', len(publications)),
+                    "duplicates_detected": crawl_metrics.get('duplicates_detected', 0),
+                    "pages_visited": len(crawler.visited_urls)
+                }
+                crawl_history.create_crawl_record(
+                    started_at=started_at,
+                    completed_at=completed_at,
+                    stats=crawl_stats,
+                    status=crawl_status,
+                    errors=crawl_errors,
+                    trigger="scheduled"
+                )
+
+                # Save detailed crawl summary
+                crawl_summary.create_summary(
+                    started_at=started_at,
+                    completed_at=completed_at,
+                    status=crawl_status,
+                    trigger="scheduled",
+                    crawl_metrics=crawl_metrics,
+                    errors=crawl_errors
+                )
+
+                log_message(f'Successfully crawled {len(publications)} unique publications '
+                    f'({crawl_metrics.get("duplicates_detected", 0)} duplicates skipped)!')
+            else:
+                completed_at = datetime.now()
+                # Get metrics even for empty crawl
+                crawl_metrics = crawler.get_crawl_metrics() if crawler else {}
+
+                # Record failed/empty crawl
+                crawl_history.create_crawl_record(
+                    started_at=started_at,
+                    completed_at=completed_at,
+                    stats={"authors_crawled": 0, "publications_found": 0},
+                    status="completed_with_warnings",
+                    errors=["No publications found"],
+                    trigger="scheduled"
+                )
+
+                # Save summary for empty crawl
+                crawl_summary.create_summary(
+                    started_at=started_at,
+                    completed_at=completed_at,
+                    status="completed_with_warnings",
+                    trigger="scheduled",
+                    crawl_metrics=crawl_metrics,
+                    errors=["No publications found"]
+                )
+
+                log_message('Crawler completed but no publications found.')
+
+        except Exception as e:
+            completed_at = datetime.now()
+            # Get metrics if crawler was initialized
+            crawl_metrics = crawler.get_crawl_metrics() if crawler else {}
+
+            # Record failed crawl
+            crawl_history.create_crawl_record(
+                started_at=started_at,
+                completed_at=completed_at,
+                stats={},
+                status="failed",
+                errors=[str(e)],
+                trigger="scheduled"
+            )
+
+            # Save summary for failed crawl
+            crawl_summary.create_summary(
+                started_at=started_at,
+                completed_at=completed_at,
+                status="failed",
+                trigger="scheduled",
+                crawl_metrics=crawl_metrics,
+                errors=[str(e)]
+            )
+
+            log_message(f'Crawler error: {str(e)}')
+         
+    except Exception as e:
+        log_message(f"[SCHEDULED CRAWL] Failed: {str(e)}")
+        raise
 
 
 @app.context_processor
@@ -105,15 +238,41 @@ def index():
 
 @app.route('/search')
 def search():
-    """Search publications."""
+    """Search publications with pagination and sorting."""
     query = request.args.get('q', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    sort_by = request.args.get('sort', 'relevance')  # relevance, year_desc, year_asc
+    
+    # Validate sort option
+    valid_sorts = ['relevance', 'year_desc', 'year_asc']
+    if sort_by not in valid_sorts:
+        sort_by = 'relevance'
+    
+    # Limit per_page to reasonable values
+    per_page = max(5, min(per_page, 50))
+    
     results = []
+    pagination = {
+        'total': 0,
+        'page': 1,
+        'per_page': per_page,
+        'total_pages': 0
+    }
 
     if query:
-        raw_results = query_processor.search(query)
+        search_result = query_processor.search(query, page=page, per_page=per_page, sort_by=sort_by)
+        
+        # Extract pagination info
+        pagination = {
+            'total': search_result['total'],
+            'page': search_result['page'],
+            'per_page': search_result['per_page'],
+            'total_pages': search_result['total_pages']
+        }
 
         # Convert to template-friendly format
-        for doc_id, doc, score in raw_results:
+        for doc_id, doc, score in search_result['results']:
             results.append({
                 'doc_id': doc_id,
                 'title': doc.get('title', 'Untitled'),
@@ -126,7 +285,7 @@ def search():
                 'score': score
             })
 
-    return render_template('search.html', query=query, results=results)
+    return render_template('search.html', query=query, results=results, pagination=pagination, sort_by=sort_by)
 
 
 @app.route('/classify', methods=['GET', 'POST'])
@@ -440,17 +599,44 @@ def train_classifier():
 
 @app.route('/api/search')
 def api_search():
-    """API endpoint for search."""
+    """API endpoint for search with pagination."""
     query = request.args.get('q', '').strip()
-    limit = int(request.args.get('limit', 20))
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 20, type=int)
+    
+    # Support legacy 'limit' parameter for backward compatibility
+    limit = request.args.get('limit', type=int)
 
     if not query:
         return jsonify({'error': 'Query parameter required', 'results': []})
 
-    raw_results = query_processor.search(query, limit=limit)
+    # Use limit if provided (backward compatibility), otherwise use pagination
+    if limit is not None:
+        raw_results = query_processor.search(query, limit=limit)
+        results = []
+        for doc_id, doc, score in raw_results:
+            results.append({
+                'doc_id': doc_id,
+                'title': doc.get('title', ''),
+                'authors': doc.get('authors', []),
+                'year': doc.get('year', ''),
+                'abstract': doc.get('abstract', ''),
+                'publication_link': doc.get('publication_link', ''),
+                'author_profiles': doc.get('author_profiles', {}),
+                'score': round(score, 4)
+            })
+        return jsonify({
+            'query': query,
+            'count': len(results),
+            'results': results
+        })
+    
+    # Paginated search
+    per_page = max(5, min(per_page, 100))
+    search_result = query_processor.search(query, page=page, per_page=per_page)
 
     results = []
-    for doc_id, doc, score in raw_results:
+    for doc_id, doc, score in search_result['results']:
         results.append({
             'doc_id': doc_id,
             'title': doc.get('title', ''),
@@ -464,8 +650,13 @@ def api_search():
 
     return jsonify({
         'query': query,
-        'count': len(results),
-        'results': results
+        'results': results,
+        'pagination': {
+            'total': search_result['total'],
+            'page': search_result['page'],
+            'per_page': search_result['per_page'],
+            'total_pages': search_result['total_pages']
+        }
     })
 
 

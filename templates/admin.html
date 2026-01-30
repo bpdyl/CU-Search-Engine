@@ -1,231 +1,538 @@
 {% extends "base.html" %}
 
-{% block title %}Admin - Coventry Research Search{% endblock %}
+{% block title %}Admin Dashboard — CU Research Search{% endblock %}
+
+{% block main_class %}wide{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--space-xl);
+        flex-wrap: wrap;
+        gap: var(--space-md);
+    }
+    
+    .admin-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-md);
+    }
+    
+    .admin-title-icon {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 16px rgba(45, 90, 61, 0.3);
+    }
+    
+    .admin-title h1 {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--color-text-primary);
+    }
+    
+    .admin-actions {
+        display: flex;
+        gap: var(--space-sm);
+        flex-wrap: wrap;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xl);
+        margin-bottom: var(--space-xl);
+    }
+    
+    @media (max-width: 1024px) {
+        .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Glass Admin Cards */
+    .admin-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+    
+    .admin-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-xl);
+    }
+    
+    .admin-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-lg);
+        background: var(--color-bg-tertiary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .admin-card-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-family: var(--font-display);
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0;
+    }
+    
+    .admin-card-title i {
+        color: var(--color-brand-primary);
+        font-size: 1.125rem;
+    }
+    
+    .admin-card-body {
+        padding: var(--space-xl);
+    }
+    
+    .admin-card-desc {
+        color: var(--color-text-secondary);
+        font-size: 0.9375rem;
+        margin: 0 0 var(--space-lg);
+        line-height: 1.6;
+    }
+    
+    /* Schedule Display */
+    .schedule-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-xl);
+        padding: var(--space-lg);
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-lg);
+        border: 1px solid var(--color-border-primary);
+    }
+    
+    .schedule-item {
+        text-align: center;
+    }
+    
+    .schedule-value {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--color-brand-primary);
+        line-height: 1;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .schedule-value.success { color: var(--color-success); }
+    .schedule-value.warning { color: var(--color-warning); }
+    
+    .schedule-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+    }
+    
+    /* Stats List */
+    .stats-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .stats-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-sm) 0;
+        border-bottom: 1px solid var(--color-border-primary);
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .stats-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .stats-list li i {
+        color: var(--color-text-tertiary);
+        margin-right: var(--space-sm);
+    }
+    
+    .stats-list li strong {
+        color: var(--color-text-primary);
+    }
+    
+    /* Divider */
+    .card-divider {
+        height: 1px;
+        background: var(--color-border-primary);
+        margin: var(--space-lg) 0;
+    }
+    
+    .card-section-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0 0 var(--space-md);
+    }
+    
+    /* Categories */
+    .categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-xs);
+        margin-top: var(--space-sm);
+    }
+    
+    /* Full Width Card */
+    .admin-card.full-width {
+        grid-column: 1 / -1;
+    }
+    
+    .system-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xl);
+    }
+    
+    @media (max-width: 768px) {
+        .system-grid { grid-template-columns: 1fr; }
+    }
+    
+    .system-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .system-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-xs) 0;
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .system-list li i {
+        color: var(--color-text-tertiary);
+        width: 18px;
+    }
+    
+    .system-list li strong {
+        color: var(--color-text-primary);
+    }
+    
+    .system-list code {
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 0.8125rem;
+        padding: 2px 6px;
+        background: var(--color-bg-tertiary);
+        border-radius: 4px;
+        color: var(--color-brand-primary);
+    }
+    
+    /* Crawler Log */
+    .crawler-log {
+        background: #000;
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        padding: var(--space-lg);
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 0.8125rem;
+        line-height: 1.6;
+        color: rgb(255, 255, 255);
+        white-space: pre-wrap;
+    }
+    
+    /* Schedule Info List */
+    .schedule-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .schedule-info-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-sm) 0;
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .schedule-info-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .schedule-info-list li i {
+        color: var(--color-brand-primary);
+    }
+    
+    .schedule-info-list li strong {
+        margin-left: auto;
+        color: var(--color-text-primary);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-10 mx-auto">
-        <!-- Admin Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="bi bi-gear"></i> Administration</h2>
-            <div>
-                <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-outline-primary me-2">
-                    <i class="bi bi-clock-history"></i> Crawl History
-                </a>
-                <a href="{{ url_for('admin_crawl_summary') }}" class="btn btn-outline-info me-2">
-                    <i class="bi bi-graph-up"></i> Crawl Summary
-                </a>
-                <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
-            </div>
+<div class="admin-header">
+    <div class="admin-title">
+        <div class="admin-title-icon">
+            <i class="bi bi-gear"></i>
         </div>
-
-        <div class="row">
-            <!-- Crawler Section -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="bi bi-globe"></i> Web Crawler</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted">
-                            Crawl publications from Coventry University's PURE Portal.
-                        </p>
-                        <form action="{{ url_for('run_crawler') }}" method="POST">
-                            <div class="mb-3">
-                                <label class="form-label">Maximum Authors to Crawl</label>
-                                <input type="number" class="form-control" name="max_authors"
-                                       value="20" min="1" max="100">
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-play"></i> Start Crawler
-                            </button>
-                        </form>
-                        <hr>
-                        <h6>Quick Actions</h6>
-                        <form action="{{ url_for('load_sample_data') }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-download"></i> Load Sample Data
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Crawl Schedule Section -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Crawl Schedule</h5>
-                        <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-sm btn-outline-secondary">
-                            View History
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        {% if schedule_info %}
-                        <div class="row text-center mb-3">
-                            <div class="col-6">
-                                <div class="h5 text-primary mb-0">{{ schedule_info.interval_display }}</div>
-                                <small class="text-muted">Crawl Interval</small>
-                            </div>
-                            <div class="col-6">
-                                <div class="h5 mb-0">
-                                    {% if schedule_info.enabled %}
-                                        <span class="text-success"><i class="bi bi-check-circle"></i> Active</span>
-                                    {% else %}
-                                        <span class="text-secondary"><i class="bi bi-pause-circle"></i> Paused</span>
-                                    {% endif %}
-                                </div>
-                                <small class="text-muted">Status</small>
-                            </div>
-                        </div>
-                        <hr>
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2">
-                                <i class="bi bi-calendar-event text-primary"></i>
-                                <strong>Next Crawl:</strong>
-                                {% if schedule_info.is_overdue %}
-                                    <span class="text-warning">Overdue</span>
-                                {% else %}
-                                    {{ schedule_info.next_crawl_display }}
-                                {% endif %}
-                                <span class="badge bg-info ms-2">{{ schedule_info.time_until_next }}</span>
-                            </li>
-                            <li>
-                                <i class="bi bi-clock-history text-secondary"></i>
-                                <strong>Last Crawl:</strong> {{ schedule_info.last_crawl_display }}
-                            </li>
-                        </ul>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Index Section -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="bi bi-database"></i> Search Index</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted">
-                            Manage the inverted index for search functionality.
-                        </p>
-                        <form action="{{ url_for('rebuild_index') }}" method="POST" class="mb-3">
-                            <button type="submit" class="btn btn-warning">
-                                <i class="bi bi-arrow-repeat"></i> Rebuild Index
-                            </button>
-                        </form>
-
-                        {% if stats %}
-                        <hr>
-                        <h6>Current Index Stats</h6>
-                        <ul class="list-unstyled">
-                            <li><i class="bi bi-file-text"></i> Documents: <strong>{{ stats.total_documents }}</strong></li>
-                            <li><i class="bi bi-hash"></i> Unique Terms: <strong>{{ stats.total_terms }}</strong></li>
-                            <li><i class="bi bi-bar-chart"></i> Avg Doc Length: <strong>{{ stats.average_doc_length }}</strong></li>
-                            <li><i class="bi bi-calendar"></i> Last Updated:
-                                <strong>{{ stats.last_updated[:19] if stats.last_updated else 'Never' }}</strong>
-                            </li>
-                        </ul>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Classifier Section -->
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="bi bi-cpu"></i> Document Classifier</h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="text-muted">
-                            Train and manage the Naive Bayes document classifier.
-                        </p>
-                        <form action="{{ url_for('train_classifier') }}" method="POST" class="mb-3">
-                            <button type="submit" class="btn btn-info text-white">
-                                <i class="bi bi-lightning"></i> Train Classifier
-                            </button>
-                        </form>
-
-                        {% if classifier_info %}
-                        <hr>
-                        <h6>Classifier Info</h6>
-                        <ul class="list-unstyled">
-                            <li><i class="bi bi-check-circle"></i> Status:
-                                {% if classifier_info.status == 'Model loaded' %}
-                                    <span class="badge bg-success">Ready</span>
-                                {% else %}
-                                    <span class="badge bg-warning">Not Trained</span>
-                                {% endif %}
-                            </li>
-                            {% if classifier_info.accuracy is defined and classifier_info.accuracy != 'N/A' %}
-                            <li><i class="bi bi-graph-up"></i> Accuracy:
-                                <strong>{{ (classifier_info.accuracy * 100)|round(1) }}%</strong>
-                            </li>
-                            {% endif %}
-                            {% if classifier_info.total_samples is defined and classifier_info.total_samples != 'N/A' %}
-                            <li><i class="bi bi-collection"></i> Training Samples:
-                                <strong>{{ classifier_info.total_samples }}</strong>
-                            </li>
-                            {% endif %}
-                            <li><i class="bi bi-tags"></i> Categories:
-                                {% for cat in classifier_info.categories %}
-                                    <span class="badge bg-secondary">{{ cat }}</span>
-                                {% endfor %}
-                            </li>
-                        </ul>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- System Info Section -->
-            <div class="col-md-12 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0"><i class="bi bi-info-circle"></i> System Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6>Technology Stack</h6>
-                                <ul class="list-unstyled">
-                                    <li><i class="bi bi-code-slash"></i> Framework: <strong>Flask</strong></li>
-                                    <li><i class="bi bi-box"></i> Search Engine: <strong>TF-IDF / BM25</strong></li>
-                                    <li><i class="bi bi-cpu"></i> Classifier: <strong>Multinomial Naive Bayes</strong></li>
-                                    <li><i class="bi bi-translate"></i> NLP: <strong>NLTK (Porter Stemmer, WordNet)</strong></li>
-                                </ul>
-                            </div>
-                            <div class="col-md-6">
-                                <h6>Data Files</h6>
-                                <ul class="list-unstyled small">
-                                    <li><code>data/publications.json</code> - Crawled publication data</li>
-                                    <li><code>data/index.pkl</code> - Inverted search index</li>
-                                    <li><code>data/classifier_model.pkl</code> - Trained classifier model</li>
-                                    <li><code>data/crawl_history.json</code> - Crawl history records</li>
-                                    <li><code>data/crawl_schedule.json</code> - Schedule configuration</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Crawler Log -->
-        {% if crawler_log %}
-        <div class="card shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-terminal"></i> Crawler Log</h5>
-            </div>
-            <div class="card-body">
-                <pre class="bg-dark text-light p-3 rounded" style="max-height: 400px; overflow-y: auto;">{{ crawler_log }}</pre>
-            </div>
-        </div>
-        {% endif %}
+        <h1>Administration</h1>
     </div>
+    
+    <div class="admin-actions">
+        <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-secondary">
+            <i class="bi bi-clock-history"></i>
+            <span>Crawl History</span>
+        </a>
+        <a href="{{ url_for('admin_crawl_summary') }}" class="btn btn-secondary">
+            <i class="bi bi-graph-up"></i>
+            <span>Crawl Summary</span>
+        </a>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Web Crawler Card -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="bi bi-globe"></i>
+                Web Crawler
+            </h3>
+        </div>
+        <div class="admin-card-body">
+            <p class="admin-card-desc">Crawl publications from Coventry University's PURE Portal.</p>
+            
+            <form action="{{ url_for('run_crawler') }}" method="POST">
+                <div class="form-group">
+                    <label class="form-label">Maximum Authors to Crawl</label>
+                    <input type="number" class="form-input" name="max_authors" value="20" min="1" max="100">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-play-fill"></i>
+                    <span>Start Crawler</span>
+                </button>
+            </form>
+            
+            <div class="card-divider"></div>
+            
+            <h4 class="card-section-title">Quick Actions</h4>
+            <form action="{{ url_for('load_sample_data') }}" method="POST">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-download"></i>
+                    <span>Load Sample Data</span>
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Crawl Schedule Card -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="bi bi-calendar-check"></i>
+                Crawl Schedule
+            </h3>
+            <a href="{{ url_for('admin_crawl_history') }}" class="btn btn-sm btn-outline">View History</a>
+        </div>
+        <div class="admin-card-body">
+            {% if schedule_info %}
+            <div class="schedule-display">
+                <div class="schedule-item">
+                    <div class="schedule-value">{{ schedule_info.interval_display }}</div>
+                    <div class="schedule-label">Interval</div>
+                </div>
+                <div class="schedule-item">
+                    {% if schedule_info.enabled %}
+                        <div class="schedule-value success"><i class="bi bi-check-circle"></i></div>
+                        <div class="schedule-label">Active</div>
+                    {% else %}
+                        <div class="schedule-value warning"><i class="bi bi-pause-circle"></i></div>
+                        <div class="schedule-label">Paused</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <ul class="schedule-info-list">
+                <li>
+                    <i class="bi bi-calendar-event"></i>
+                    <span>Next Crawl:</span>
+                    <strong>
+                        {% if schedule_info.is_overdue %}
+                            <span class="text-warning">Overdue</span>
+                        {% else %}
+                            {{ schedule_info.next_crawl_display }}
+                        {% endif %}
+                    </strong>
+                    <span class="badge badge-info" style="margin-left: var(--space-sm);">{{ schedule_info.time_until_next }}</span>
+                </li>
+                <li>
+                    <i class="bi bi-clock-history"></i>
+                    <span>Last Crawl:</span>
+                    <strong>{{ schedule_info.last_crawl_display }}</strong>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Search Index Card -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="bi bi-database"></i>
+                Search Index
+            </h3>
+        </div>
+        <div class="admin-card-body">
+            <p class="admin-card-desc">Manage the inverted index for search functionality.</p>
+            
+            <form action="{{ url_for('rebuild_index') }}" method="POST" style="margin-bottom: var(--space-lg);">
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-arrow-repeat"></i>
+                    <span>Rebuild Index</span>
+                </button>
+            </form>
+            
+            {% if stats %}
+            <div class="card-divider"></div>
+            <h4 class="card-section-title">Current Index Stats</h4>
+            <ul class="stats-list">
+                <li><span><i class="bi bi-file-text"></i> Documents</span> <strong>{{ stats.total_documents }}</strong></li>
+                <li><span><i class="bi bi-hash"></i> Unique Terms</span> <strong>{{ stats.total_terms }}</strong></li>
+                <li><span><i class="bi bi-bar-chart"></i> Avg Doc Length</span> <strong>{{ stats.average_doc_length }}</strong></li>
+                <li><span><i class="bi bi-calendar"></i> Last Updated</span> <strong>{{ stats.last_updated[:19] if stats.last_updated else 'Never' }}</strong></li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Document Classifier Card -->
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="bi bi-cpu"></i>
+                Document Classifier
+            </h3>
+        </div>
+        <div class="admin-card-body">
+            <p class="admin-card-desc">Train and manage the Naive Bayes document classifier.</p>
+            
+            <form action="{{ url_for('train_classifier') }}" method="POST" style="margin-bottom: var(--space-lg);">
+                <button type="submit" class="btn btn-info">
+                    <i class="bi bi-lightning"></i>
+                    <span>Train Classifier</span>
+                </button>
+            </form>
+            
+            {% if classifier_info %}
+            <div class="card-divider"></div>
+            <h4 class="card-section-title">Classifier Info</h4>
+            <ul class="stats-list">
+                <li>
+                    <span><i class="bi bi-check-circle"></i> Status</span>
+                    <strong>
+                        {% if classifier_info.status == 'Model loaded' %}
+                            <span class="badge badge-success">Ready</span>
+                        {% else %}
+                            <span class="badge badge-warning">Not Trained</span>
+                        {% endif %}
+                    </strong>
+                </li>
+                {% if classifier_info.accuracy is defined and classifier_info.accuracy != 'N/A' %}
+                <li><span><i class="bi bi-graph-up"></i> Accuracy</span> <strong>{{ (classifier_info.accuracy * 100)|round(1) }}%</strong></li>
+                {% endif %}
+                {% if classifier_info.total_samples is defined and classifier_info.total_samples != 'N/A' %}
+                <li><span><i class="bi bi-collection"></i> Training Samples</span> <strong>{{ classifier_info.total_samples }}</strong></li>
+                {% endif %}
+            </ul>
+            <div style="margin-top: var(--space-md);">
+                <span style="font-size: 0.8125rem; color: var(--color-text-tertiary);">Categories:</span>
+                <div class="categories">
+                    {% for cat in classifier_info.categories %}
+                        <span class="badge badge-neutral">{{ cat }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- System Info Card -->
+    <div class="admin-card full-width">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="bi bi-info-circle"></i>
+                System Information
+            </h3>
+        </div>
+        <div class="admin-card-body">
+            <div class="system-grid">
+                <div>
+                    <h4 class="card-section-title">Technology Stack</h4>
+                    <ul class="system-list">
+                        <li><i class="bi bi-code-slash"></i> Framework: <strong>Flask</strong></li>
+                        <li><i class="bi bi-box"></i> Search Engine: <strong>TF-IDF / BM25</strong></li>
+                        <li><i class="bi bi-cpu"></i> Classifier: <strong>Multinomial Naive Bayes</strong></li>
+                        <li><i class="bi bi-translate"></i> NLP: <strong>NLTK (Porter Stemmer, WordNet)</strong></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="card-section-title">Data Files</h4>
+                    <ul class="system-list">
+                        <li><code>data/publications.json</code> — Crawled publication data</li>
+                        <li><code>data/index.pkl</code> — Inverted search index</li>
+                        <li><code>data/classifier_model.pkl</code> — Trained classifier model</li>
+                        <li><code>data/crawl_history.json</code> — Crawl history records</li>
+                        <li><code>data/crawl_schedule.json</code> — Schedule configuration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Crawler Log -->
+    {% if crawler_log %}
+    <div class="admin-card full-width">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">
+                <i class="bi bi-terminal"></i>
+                Crawler Log
+            </h3>
+        </div>
+        <div class="admin-card-body">
+            <div class="crawler-log">{{ crawler_log }}</div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

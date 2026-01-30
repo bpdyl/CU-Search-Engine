@@ -150,5 +150,89 @@
     "errors": [],
     "trigger": "manual",
     "index_updated": true
+  },
+  {
+    "id": "crawl_20260124_145042",
+    "started_at": "2026-01-26T19:57:42.329020",
+    "completed_at": "2026-01-26T20:38:50.551755",
+    "duration_seconds": 2890,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 47,
+      "publications_found": 368,
+      "unique_publications": 291,
+      "duplicates_detected": 77,
+      "pages_visited": 47
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260128_203912",
+    "started_at": "2026-01-28T20:39:12.740315",
+    "completed_at": "2026-01-28T20:39:41.534559",
+    "duration_seconds": 28,
+    "status": "completed_with_warnings",
+    "statistics": {
+      "authors_crawled": 0,
+      "publications_found": 0
+    },
+    "errors": [
+      "No publications found"
+    ],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260128_204045",
+    "started_at": "2026-01-28T20:40:45.879896",
+    "completed_at": "2026-01-28T21:00:58.635634",
+    "duration_seconds": 1212,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 47,
+      "publications_found": 12,
+      "unique_publications": 11,
+      "duplicates_detected": 1,
+      "pages_visited": 47
+    },
+    "errors": [],
+    "trigger": "manual",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260129_092103",
+    "started_at": "2026-01-29T09:21:03.196191",
+    "completed_at": "2026-01-29T10:10:34.714125",
+    "duration_seconds": 2971,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 47,
+      "publications_found": 368,
+      "unique_publications": 291,
+      "duplicates_detected": 77,
+      "pages_visited": 47
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
+  },
+  {
+    "id": "crawl_20260130_080521",
+    "started_at": "2026-01-30T08:05:21.108599",
+    "completed_at": "2026-01-30T09:40:43.884774",
+    "duration_seconds": 5722,
+    "status": "completed",
+    "statistics": {
+      "authors_crawled": 46,
+      "publications_found": 752,
+      "unique_publications": 642,
+      "duplicates_detected": 110,
+      "pages_visited": 46
+    },
+    "errors": [],
+    "trigger": "scheduled",
+    "index_updated": true
   }
 ]

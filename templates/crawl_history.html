@@ -1,231 +1,559 @@
 {% extends "base.html" %}
 
-{% block title %}Crawl History - Admin{% endblock %}
+{% block title %}Crawl History — Admin{% endblock %}
+
+{% block main_class %}wide{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: var(--space-xl);
+    }
+    
+    @media (max-width: 1024px) {
+        .history-layout { grid-template-columns: 1fr; }
+    }
+    
+    /* Glass Sidebar Cards */
+    .sidebar-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+        margin-bottom: var(--space-lg);
+    }
+    
+    .sidebar-header {
+        padding: var(--space-lg);
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        color: white;
+    }
+    
+    .sidebar-header.secondary {
+        background: var(--color-bg-tertiary);
+        color: var(--color-text-primary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .sidebar-header h3 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-family: var(--font-display);
+        font-size: 1.0625rem;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .sidebar-header.secondary h3 i {
+        color: var(--color-brand-primary);
+    }
+    
+    .sidebar-body {
+        padding: var(--space-lg);
+    }
+    
+    /* Schedule Info */
+    .schedule-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-sm) 0;
+        font-size: 0.9375rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .schedule-divider {
+        height: 1px;
+        background: var(--color-border-primary);
+        margin: var(--space-md) 0;
+    }
+    
+    .next-crawl-display {
+        text-align: center;
+        padding: var(--space-xl) 0;
+    }
+    
+    .next-crawl-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-text-tertiary);
+        margin-bottom: var(--space-sm);
+    }
+    
+    .next-crawl-value {
+        font-family: var(--font-display);
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--color-brand-primary);
+        line-height: 1.2;
+    }
+    
+    .next-crawl-value.overdue {
+        color: var(--color-warning);
+    }
+    
+    .next-crawl-date {
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+        margin-top: var(--space-xs);
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+    
+    .stat-box {
+        text-align: center;
+        padding: var(--space-md);
+        background: var(--color-bg-secondary);
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border-primary);
+    }
+    
+    .stat-box-value {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: var(--space-xs);
+    }
+    
+    .stat-box-value.primary { color: var(--color-brand-primary); }
+    .stat-box-value.success { color: var(--color-success); }
+    .stat-box-value.info { color: var(--color-info); }
+    .stat-box-value.secondary { color: var(--color-text-secondary); }
+    
+    .stat-box-label {
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+    }
+    
+    /* Main Table Card */
+    .main-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--glass-shadow);
+        overflow: hidden;
+    }
+    
+    .main-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-lg);
+        background: var(--color-bg-tertiary);
+        border-bottom: 1px solid var(--color-border-primary);
+        flex-wrap: wrap;
+        gap: var(--space-md);
+    }
+    
+    .main-card-header h3 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-family: var(--font-display);
+        font-size: 1.0625rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 0;
+    }
+    
+    .main-card-header h3 i {
+        color: var(--color-brand-primary);
+    }
+    
+    .main-card-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+    }
+    
+    /* History Table */
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .history-table th {
+        text-align: left;
+        padding: var(--space-md);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+        background: var(--color-bg-tertiary);
+        border-bottom: 1px solid var(--color-border-primary);
+    }
+    
+    .history-table td {
+        padding: var(--space-md);
+        font-size: 0.9375rem;
+        color: var(--color-text-primary);
+        border-bottom: 1px solid var(--color-border-primary);
+        vertical-align: middle;
+    }
+    
+    .history-table tr:hover td {
+        background: var(--color-bg-tertiary);
+    }
+    
+    .date-cell .date-main {
+        font-weight: 500;
+    }
+    
+    .date-cell .date-time {
+        font-size: 0.8125rem;
+        color: var(--color-text-tertiary);
+    }
+    
+    .duration-cell {
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .pubs-new { color: var(--color-success); font-weight: 600; }
+    .pubs-total { font-size: 0.8125rem; color: var(--color-text-tertiary); }
+    
+    /* Detail Toggle */
+    .detail-toggle {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--glass-bg);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        color: var(--color-text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .detail-toggle:hover {
+        background: var(--color-brand-light);
+        border-color: var(--color-brand-primary);
+        color: var(--color-brand-primary);
+    }
+    
+    .detail-toggle i {
+        transition: transform var(--transition-fast);
+    }
+    
+    .detail-toggle.open i {
+        transform: rotate(180deg);
+    }
+    
+    /* Detail Row */
+    .detail-row {
+        display: none;
+    }
+    
+    .detail-row.open {
+        display: table-row;
+    }
+    
+    .detail-row td {
+        padding: 0;
+        background: var(--color-bg-tertiary);
+    }
+    
+    .detail-content {
+        padding: var(--space-lg);
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-xl);
+    }
+    
+    @media (max-width: 768px) {
+        .detail-content { grid-template-columns: 1fr; }
+    }
+    
+    .detail-section h4 {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--color-text-tertiary);
+        margin: 0 0 var(--space-md);
+    }
+    
+    .detail-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .detail-list li {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        padding: var(--space-xs) 0;
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .detail-list li i {
+        color: var(--color-text-tertiary);
+        width: 18px;
+    }
+    
+    .detail-list code {
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        background: var(--color-bg-secondary);
+        border-radius: 4px;
+        color: var(--color-brand-primary);
+    }
+    
+    .error-section h4 {
+        color: var(--color-warning);
+        margin-top: var(--space-md);
+    }
+    
+    .error-section li {
+        color: var(--color-warning);
+    }
+    
+    .error-section li i {
+        color: var(--color-warning);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar / Schedule Info -->
-        <div class="col-lg-4 mb-4">
-            <!-- Schedule Status Card -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Crawl Schedule</h5>
+<div class="history-layout">
+    <!-- Sidebar -->
+    <aside>
+        <!-- Schedule Status -->
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <h3><i class="bi bi-calendar-check"></i> Crawl Schedule</h3>
+            </div>
+            <div class="sidebar-body">
+                <div class="schedule-row">
+                    <span>Status</span>
+                    {% if schedule_info.enabled %}
+                        <span class="badge badge-success">Enabled</span>
+                    {% else %}
+                        <span class="badge badge-neutral">Disabled</span>
+                    {% endif %}
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Status:</span>
-                            {% if schedule_info.enabled %}
-                                <span class="badge bg-success">Enabled</span>
-                            {% else %}
-                                <span class="badge bg-secondary">Disabled</span>
-                            {% endif %}
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="text-muted">Interval:</span>
-                            <strong>{{ schedule_info.interval_display }}</strong>
-                        </div>
+                <div class="schedule-row">
+                    <span>Interval</span>
+                    <strong style="color: var(--color-text-primary);">{{ schedule_info.interval_display }}</strong>
+                </div>
+                
+                <div class="schedule-divider"></div>
+                
+                <div class="next-crawl-display">
+                    <div class="next-crawl-label">Next Scheduled Crawl</div>
+                    <div class="next-crawl-value {% if schedule_info.is_overdue %}overdue{% endif %}">
+                        {% if schedule_info.is_overdue %}
+                            <i class="bi bi-exclamation-triangle"></i> Overdue
+                        {% else %}
+                            {{ schedule_info.time_until_next }}
+                        {% endif %}
                     </div>
-
-                    <hr>
-
-                    <!-- Next Crawl -->
-                    <div class="text-center py-3">
-                        <h6 class="text-muted mb-2">Next Scheduled Crawl</h6>
-                        <div class="display-6 mb-2">
-                            {% if schedule_info.is_overdue %}
-                                <span class="text-warning">
-                                    <i class="bi bi-exclamation-triangle"></i> Overdue
-                                </span>
-                            {% else %}
-                                <span class="text-primary">{{ schedule_info.time_until_next }}</span>
-                            {% endif %}
-                        </div>
-                        <small class="text-muted">{{ schedule_info.next_crawl_display }}</small>
-                    </div>
-
-                    <hr>
-
-                    <!-- Last Crawl -->
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-muted">Last Crawl:</span>
-                        <span>{{ schedule_info.last_crawl_display }}</span>
-                    </div>
+                    <div class="next-crawl-date">{{ schedule_info.next_crawl_display }}</div>
+                </div>
+                
+                <div class="schedule-divider"></div>
+                
+                <div class="schedule-row">
+                    <span>Last Crawl</span>
+                    <span style="color: var(--color-text-primary);">{{ schedule_info.last_crawl_display }}</span>
                 </div>
             </div>
-
-            <!-- Statistics Card -->
-            <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Crawl Statistics</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="h3 text-primary mb-0">{{ stats.total_crawls }}</div>
-                            <small class="text-muted">Total Crawls</small>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="h3 text-success mb-0">{{ stats.success_rate|round(0) }}%</div>
-                            <small class="text-muted">Success Rate</small>
-                        </div>
-                        <div class="col-6">
-                            <div class="h3 text-info mb-0">{{ stats.total_publications_discovered }}</div>
-                            <small class="text-muted">New Pubs Found</small>
-                        </div>
-                        <div class="col-6">
-                            <div class="h3 text-secondary mb-0">{{ (stats.average_duration_seconds / 60)|round(1) }}m</div>
-                            <small class="text-muted">Avg Duration</small>
-                        </div>
+        </div>
+        
+        <!-- Statistics -->
+        <div class="sidebar-card">
+            <div class="sidebar-header secondary">
+                <h3><i class="bi bi-bar-chart"></i> Crawl Statistics</h3>
+            </div>
+            <div class="sidebar-body">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-box-value primary">{{ stats.total_crawls }}</div>
+                        <div class="stat-box-label">Total Crawls</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value success">{{ stats.success_rate|round(0) }}%</div>
+                        <div class="stat-box-label">Success Rate</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value info">{{ stats.total_publications_discovered }}</div>
+                        <div class="stat-box-label">Pubs Found</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-box-value secondary">{{ (stats.average_duration_seconds / 60)|round(1) }}m</div>
+                        <div class="stat-box-label">Avg Duration</div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Main Content - History Table -->
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Crawl History</h5>
-                    <div>
-                        <a href="{{ url_for('admin_crawl_summary') }}" class="btn btn-sm btn-outline-info me-2">
-                            <i class="bi bi-graph-up"></i> Detailed Summary
-                        </a>
-                        <span class="badge bg-secondary">{{ history|length }} records</span>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date & Time</th>
-                                    <th>Duration</th>
-                                    <th>Status</th>
-                                    <th>Publications</th>
-                                    <th>Trigger</th>
-                                    <th>Details</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for crawl in history %}
-                                <tr>
-                                    <td>
-                                        <div>{{ crawl.started_at[:10] }}</div>
-                                        <small class="text-muted">{{ crawl.started_at[11:16] }}</small>
-                                    </td>
-                                    <td>
-                                        {% set mins = crawl.duration_seconds // 60 %}
-                                        {% set secs = crawl.duration_seconds % 60 %}
-                                        {{ mins }}m {{ secs }}s
-                                    </td>
-                                    <td>
-                                        {% if crawl.status == 'completed' %}
-                                            <span class="badge bg-success">
-                                                <i class="bi bi-check-circle"></i> Completed
-                                            </span>
-                                        {% elif crawl.status == 'completed_with_warnings' %}
-                                            <span class="badge bg-warning text-dark">
-                                                <i class="bi bi-exclamation-triangle"></i> Warnings
-                                            </span>
-                                        {% elif crawl.status == 'failed' %}
-                                            <span class="badge bg-danger">
-                                                <i class="bi bi-x-circle"></i> Failed
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ crawl.status }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if crawl.statistics %}
-                                            <div>
-                                                <span class="text-success">+{{ crawl.statistics.new_publications }}</span> new
-                                            </div>
-                                            <small class="text-muted">
-                                                {{ crawl.statistics.publications_found }} total
-                                            </small>
-                                        {% else %}
-                                            <span class="text-muted">-</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if crawl.trigger == 'scheduled' %}
-                                            <span class="badge bg-info">
-                                                <i class="bi bi-calendar"></i> Scheduled
-                                            </span>
-                                        {% elif crawl.trigger == 'manual' %}
-                                            <span class="badge bg-secondary">
-                                                <i class="bi bi-hand-index"></i> Manual
-                                            </span>
-                                        {% elif crawl.trigger == 'initial' %}
-                                            <span class="badge bg-primary">
-                                                <i class="bi bi-play-circle"></i> Initial
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary">{{ crawl.trigger }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-secondary" type="button"
-                                                data-bs-toggle="collapse" data-bs-target="#details-{{ loop.index }}">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="collapse" id="details-{{ loop.index }}">
-                                    <td colspan="6" class="bg-light">
-                                        <div class="p-3">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6 class="text-muted mb-2">Statistics</h6>
-                                                    <ul class="list-unstyled mb-0">
-                                                        {% if crawl.statistics %}
-                                                        <li><i class="bi bi-person"></i> Authors Crawled: {{ crawl.statistics.authors_crawled }}</li>
-                                                        <li><i class="bi bi-file-text"></i> Publications Found: {{ crawl.statistics.publications_found }}</li>
-                                                        <li><i class="bi bi-plus-circle text-success"></i> New Publications: {{ crawl.statistics.new_publications }}</li>
-                                                        <li><i class="bi bi-arrow-repeat text-info"></i> Updated: {{ crawl.statistics.updated_publications }}</li>
-                                                        <li><i class="bi bi-globe"></i> Pages Visited: {{ crawl.statistics.pages_visited }}</li>
-                                                        {% else %}
-                                                        <li class="text-muted">No statistics available</li>
-                                                        {% endif %}
-                                                    </ul>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h6 class="text-muted mb-2">Details</h6>
-                                                    <ul class="list-unstyled mb-0">
-                                                        <li><i class="bi bi-hash"></i> ID: <code>{{ crawl.id }}</code></li>
-                                                        <li><i class="bi bi-play"></i> Started: {{ crawl.started_at }}</li>
-                                                        <li><i class="bi bi-stop"></i> Completed: {{ crawl.completed_at }}</li>
-                                                        <li>
-                                                            <i class="bi bi-database"></i> Index Updated:
-                                                            {% if crawl.index_updated %}
-                                                                <span class="text-success">Yes</span>
-                                                            {% else %}
-                                                                <span class="text-danger">No</span>
-                                                            {% endif %}
-                                                        </li>
-                                                    </ul>
-                                                    {% if crawl.errors and crawl.errors|length > 0 %}
-                                                    <h6 class="text-muted mt-3 mb-2">Errors/Warnings</h6>
-                                                    <ul class="list-unstyled text-warning mb-0">
-                                                        {% for error in crawl.errors %}
-                                                        <li><i class="bi bi-exclamation-circle"></i> {{ error }}</li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-card">
+        <div class="main-card-header">
+            <h3><i class="bi bi-clock-history"></i> Crawl History</h3>
+            <div class="main-card-actions">
+                <a href="{{ url_for('admin_crawl_summary') }}" class="btn btn-sm btn-secondary">
+                    <i class="bi bi-graph-up"></i>
+                    <span>Detailed Summary</span>
+                </a>
+                <span class="badge badge-neutral">{{ history|length }} records</span>
             </div>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Publications</th>
+                        <th>Trigger</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for crawl in history %}
+                    <tr>
+                        <td class="date-cell">
+                            <div class="date-main">{{ crawl.started_at[:10] }}</div>
+                            <div class="date-time">{{ crawl.started_at[11:16] }}</div>
+                        </td>
+                        <td class="duration-cell">
+                            {% set mins = crawl.duration_seconds // 60 %}
+                            {% set secs = crawl.duration_seconds % 60 %}
+                            {{ mins }}m {{ secs }}s
+                        </td>
+                        <td>
+                            {% if crawl.status == 'completed' %}
+                                <span class="badge badge-success"><i class="bi bi-check-circle"></i> Completed</span>
+                            {% elif crawl.status == 'completed_with_warnings' %}
+                                <span class="badge badge-warning"><i class="bi bi-exclamation-triangle"></i> Warnings</span>
+                            {% elif crawl.status == 'failed' %}
+                                <span class="badge badge-error"><i class="bi bi-x-circle"></i> Failed</span>
+                            {% else %}
+                                <span class="badge badge-neutral">{{ crawl.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if crawl.statistics %}
+                                <div class="pubs-new">+{{ crawl.statistics.new_publications }} new</div>
+                                <div class="pubs-total">{{ crawl.statistics.publications_found }} total</div>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if crawl.trigger == 'scheduled' %}
+                                <span class="badge badge-info"><i class="bi bi-calendar"></i> Scheduled</span>
+                            {% elif crawl.trigger == 'manual' %}
+                                <span class="badge badge-neutral"><i class="bi bi-hand-index"></i> Manual</span>
+                            {% elif crawl.trigger == 'initial' %}
+                                <span class="badge badge-primary"><i class="bi bi-play-circle"></i> Initial</span>
+                            {% else %}
+                                <span class="badge badge-neutral">{{ crawl.trigger }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="detail-toggle" onclick="toggleDetail(this, {{ loop.index }})">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="detail-row" id="detail-{{ loop.index }}">
+                        <td colspan="6">
+                            <div class="detail-content">
+                                <div class="detail-section">
+                                    <h4>Statistics</h4>
+                                    <ul class="detail-list">
+                                        {% if crawl.statistics %}
+                                        <li><i class="bi bi-person"></i> Authors Crawled: {{ crawl.statistics.authors_crawled }}</li>
+                                        <li><i class="bi bi-file-text"></i> Publications Found: {{ crawl.statistics.publications_found }}</li>
+                                        <li><i class="bi bi-plus-circle text-success"></i> New Publications: {{ crawl.statistics.new_publications }}</li>
+                                        <li><i class="bi bi-arrow-repeat text-info"></i> Updated: {{ crawl.statistics.updated_publications }}</li>
+                                        <li><i class="bi bi-globe"></i> Pages Visited: {{ crawl.statistics.pages_visited }}</li>
+                                        {% else %}
+                                        <li class="text-muted">No statistics available</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
+                                <div class="detail-section">
+                                    <h4>Details</h4>
+                                    <ul class="detail-list">
+                                        <li><i class="bi bi-hash"></i> ID: <code>{{ crawl.id }}</code></li>
+                                        <li><i class="bi bi-play"></i> Started: {{ crawl.started_at }}</li>
+                                        <li><i class="bi bi-stop"></i> Completed: {{ crawl.completed_at }}</li>
+                                        <li>
+                                            <i class="bi bi-database"></i> Index Updated:
+                                            {% if crawl.index_updated %}
+                                                <span class="text-success">Yes</span>
+                                            {% else %}
+                                                <span class="text-error">No</span>
+                                            {% endif %}
+                                        </li>
+                                    </ul>
+                                    {% if crawl.errors and crawl.errors|length > 0 %}
+                                    <div class="error-section">
+                                        <h4>Errors/Warnings</h4>
+                                        <ul class="detail-list">
+                                            {% for error in crawl.errors %}
+                                            <li><i class="bi bi-exclamation-circle"></i> {{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleDetail(btn, index) {
+    const row = document.getElementById('detail-' + index);
+    const isOpen = row.classList.contains('open');
+    
+    // Close all other detail rows
+    document.querySelectorAll('.detail-row').forEach(r => r.classList.remove('open'));
+    document.querySelectorAll('.detail-toggle').forEach(b => b.classList.remove('open'));
+    
+    if (!isOpen) {
+        row.classList.add('open');
+        btn.classList.add('open');
+    }
+}
+</script>
 {% endblock %}

@@ -211,8 +211,8 @@ class CrawlScheduler:
                     logger.info("Starting scheduled crawl...")
                     self._execute_crawl(trigger="scheduled")
 
-            # Check every 5 minutes
-            time.sleep(300)
+            # Check every 1 minute
+            time.sleep(60)
 
     def _execute_crawl(self, trigger: str = "manual"):
         """
@@ -227,41 +227,7 @@ class CrawlScheduler:
 
         started_at = datetime.now()
         logger.info(f"Crawl started at {started_at}")
-
-        try:
-            # Execute the crawl callback
-            stats = self.crawl_callback()
-
-            completed_at = datetime.now()
-            status = "completed"
-            errors = []
-
-            # Create and save the record
-            record = self.history.create_crawl_record(
-                started_at=started_at,
-                completed_at=completed_at,
-                stats=stats,
-                status=status,
-                errors=errors,
-                trigger=trigger
-            )
-
-            logger.info(f"Crawl completed successfully in {record['duration_seconds']}s")
-            return record
-
-        except Exception as e:
-            completed_at = datetime.now()
-            logger.error(f"Crawl failed: {str(e)}")
-
-            record = self.history.create_crawl_record(
-                started_at=started_at,
-                completed_at=completed_at,
-                stats={},
-                status="failed",
-                errors=[str(e)],
-                trigger=trigger
-            )
-            return record
+        self.crawl_callback()
 
     def trigger_manual_crawl(self):
         """Trigger a manual crawl immediately."""

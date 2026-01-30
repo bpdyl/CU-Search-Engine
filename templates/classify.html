@@ -4,103 +4,74 @@
 
 {% block extra_css %}
 <style>
+    /* --- Layout Utilities --- */
+    :root {
+        --compact-gap: 1.25rem;
+        --compact-padding: 1.25rem;
+    }
+
     .classify-page {
         max-width: 1400px;
         margin: 0 auto;
         display: flex;
         flex-direction: column;
+        padding: 0 var(--compact-padding);
+        min-height: calc(100vh - 80px); /* Adjust based on your nav height */
     }
     
-    /* Compact Page Header */
+    /* --- Compact Header (Horizontal) --- */
     .page-header {
-        text-align: center;
-        padding: var(--space-md) 0 var(--space-lg);
-        position: relative;
-        /* margin-bottom: var(--space-md); */
-    }
-    .main-content { flex: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: var(--space-x); }
-    
-    .page-header::before {
-        display: none;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0 1.5rem 0;
+        border-bottom: 1px solid var(--color-border-primary);
+        margin-bottom: 1.5rem;
     }
     
-    .page-icon {
-        width: 48px;
-        height: 48px;
+    .page-header-icon {
+        width: 40px;
+        height: 40px;
         background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
         border-radius: var(--radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto var(--space-xs);
-        font-size: 1.25rem;
         color: white;
-        box-shadow: 0 4px 16px rgba(45, 90, 61, 0.2);
+        font-size: 1.1rem;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(45, 90, 61, 0.15);
     }
     
-    .page-header h1 {
+    .page-header-text h1 {
         font-family: var(--font-display);
-        font-size: 1.5rem;
-        font-weight: 500;
+        font-size: 1.25rem;
+        font-weight: 600;
         color: var(--color-text-primary);
-        margin: 0 0 var(--space-xs);
-    }
-    
-    .page-header p {
-        color: var(--color-text-secondary);
-        font-size: 0.875rem;
         margin: 0;
-        max-width: 500px;
-        margin: 0 auto;
+        line-height: 1.2;
     }
     
-    /* Two-Column Layout Container - Dynamic based on results */
+    .page-header-text p {
+        color: var(--color-text-secondary);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+    
+    /* --- Grid Layout --- */
     .classify-container {
         display: grid;
         grid-template-columns: 1fr;
-        gap: var(--space-lg);
+        gap: var(--compact-gap);
         align-items: start;
     }
     
-    /* When result exists, activate two-column layout */
+    /* Active State (Two Columns) - Optimized Ratios */
     .classify-container:has(.result-card) {
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-xl);
+        grid-template-columns: 4fr 5fr; /* Left side slightly narrower */
     }
-    
-    .form-column {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .results-column {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-lg);
-    }
-    
-    /* Sticky form only in two-column layout */
-    .classify-container:has(.result-card) .form-column .classify-card {
-        position: sticky;
-        top: var(--space-lg);
-    }
-    
-    @media (max-width: 1024px) {
-        .classify-container,
-        .classify-container:has(.result-card) {
-            grid-template-columns: 1fr;
-        }
-        
-        .form-column .classify-card {
-            position: static;
-        }
-    }
-    
-    .hidden-result {
-        display: none;
-    }
-    
-    /* Glass Cards */
+
+    /* --- Cards --- */
     .classify-card {
         background: var(--glass-bg);
         backdrop-filter: blur(16px) saturate(180%);
@@ -109,43 +80,38 @@
         border-radius: var(--radius-lg);
         box-shadow: var(--glass-shadow);
         overflow: hidden;
-        margin-bottom: var(--space-xl);
+        display: flex;
+        flex-direction: column;
     }
     
     .card-header {
         display: flex;
         align-items: center;
-        gap: var(--space-sm);
-        padding: var(--space-lg);
+        gap: 0.75rem;
+        padding: 0.75rem var(--compact-padding);
         background: var(--color-bg-tertiary);
         border-bottom: 1px solid var(--color-border-primary);
     }
-    
-    .card-header i {
-        color: var(--color-brand-primary);
-        font-size: 1.125rem;
-    }
-    
+
     .card-header h2 {
-        font-family: var(--font-display);
-        font-size: 1.0625rem;
+        font-size: 0.95rem;
         font-weight: 600;
-        color: var(--color-text-primary);
         margin: 0;
     }
     
     .card-body {
-        padding: var(--space-xl);
+        padding: var(--compact-padding);
     }
     
-    /* Textarea */
+    /* --- Form Elements --- */
     .classify-textarea {
         width: 100%;
-        min-height: 250px;
-        padding: var(--space-lg);
+        min-height: 160px; /* Much smaller default height */
+        height: 160px;     /* Set a fixed initial height */
+        padding: 1rem;
         font-family: var(--font-body);
-        font-size: 0.9375rem;
-        line-height: 1.7;
+        font-size: 0.9rem;
+        line-height: 1.6;
         color: var(--color-text-primary);
         background: var(--color-bg-secondary);
         border: 1px solid var(--color-border-primary);
@@ -160,209 +126,87 @@
         box-shadow: 0 0 0 3px var(--color-brand-light);
     }
     
-    .classify-textarea::placeholder {
-        color: var(--color-text-tertiary);
+    .classify-actions {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 0.75rem;
+        margin-top: 1rem;
     }
     
-    .classify-actions {
+    /* --- Results Section --- */
+    .results-column {
+        display: flex;
+        flex-direction: column;
+        gap: var(--compact-gap);
+    }
+
+    /* Prediction Badge - Compact */
+    .prediction-display {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top: var(--space-lg);
-        flex-wrap: wrap;
-        gap: var(--space-md);
-    }
-    
-    .classify-actions button {
-        flex: 1;
-        min-width: 100px;
-    }
-    
-    .classify-actions button span {
-        font-size: 0.875rem;
-    }
-    
-    @media (max-width: 640px) {
-        .classify-actions {
-            flex-direction: column;
-        }
-        
-        .classify-actions button {
-            width: 100%;
-        }
-    }
-    
-    /* Result Card Animation */
-    .result-card {
-        animation: slideUp 0.5s ease-out;
-    }
-    
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Prediction Display */
-    .prediction-display {
-        text-align: center;
-        padding: var(--space-lg);
-        margin-bottom: var(--space-lg);
-    }
-    
-    .prediction-label {
-        font-size: 0.8125rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--color-text-tertiary);
-        margin-bottom: var(--space-md);
+        padding: 0 0 1rem 0;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid var(--color-border-primary);
     }
     
     .prediction-badge {
         display: inline-flex;
         align-items: center;
-        gap: var(--space-md);
-        padding: var(--space-md) var(--space-lg);
-        border-radius: var(--radius-lg);
-        font-family: var(--font-display);
-        font-size: 1.25rem;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 1.1rem;
         font-weight: 600;
-        backdrop-filter: blur(8px);
     }
     
-    .prediction-badge.business {
-        background: linear-gradient(135deg, rgba(61, 90, 128, 0.2), rgba(61, 90, 128, 0.1));
-        color: var(--color-info);
-        border: 1px solid var(--color-info);
-        box-shadow: 0 4px 24px rgba(61, 90, 128, 0.2);
-    }
-    
-    .prediction-badge.entertainment {
-        background: linear-gradient(135deg, rgba(45, 90, 61, 0.2), rgba(45, 90, 61, 0.1));
-        color: var(--color-success);
-        border: 1px solid var(--color-success);
-        box-shadow: 0 4px 24px rgba(45, 90, 61, 0.2);
-    }
-    
-    .prediction-badge.health {
-        background: linear-gradient(135deg, rgba(166, 61, 64, 0.2), rgba(166, 61, 64, 0.1));
-        color: var(--color-error);
-        border: 1px solid var(--color-error);
-        box-shadow: 0 4px 24px rgba(166, 61, 64, 0.2);
-    }
-    
-    .prediction-confidence {
-        margin-top: var(--space-md);
-        font-size: 0.9375rem;
+    /* Confidence Badge */
+    .confidence-pill {
+        font-size: 0.85rem;
+        background: var(--color-bg-tertiary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
         color: var(--color-text-secondary);
     }
-    
-    .prediction-confidence strong {
-        color: var(--color-text-primary);
-    }
-    
-    /* Probability Bars */
-    .probability-section h3 {
-        font-family: var(--font-display);
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin: 0 0 var(--space-lg);
-    }
-    
-    .probability-item {
-        margin-bottom: var(--space-lg);
-    }
-    
-    .probability-item:last-child {
-        margin-bottom: 0;
-    }
+
+    /* Probability Bars - Compact */
+    .probability-item { margin-bottom: 0.75rem; }
+    .probability-item:last-child { margin-bottom: 0; }
     
     .probability-header {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        margin-bottom: var(--space-sm);
-    }
-    
-    .probability-category {
-        display: flex;
-        align-items: center;
-        gap: var(--space-sm);
-        font-size: 0.9375rem;
-        color: var(--color-text-primary);
-    }
-    
-    .probability-category.business i { color: var(--color-info); }
-    .probability-category.entertainment i { color: var(--color-success); }
-    .probability-category.health i { color: var(--color-error); }
-    
-    .probability-value {
-        font-weight: 600;
-        color: var(--color-text-secondary);
+        font-size: 0.85rem;
+        margin-bottom: 0.25rem;
     }
     
     .probability-bar {
-        height: 12px;
+        height: 8px; /* Thinner bars */
         background: var(--color-bg-tertiary);
         border-radius: var(--radius-full);
         overflow: hidden;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .probability-fill {
         height: 100%;
         border-radius: var(--radius-full);
-        transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    /* Colors */
+    .business { color: var(--color-info); }
+    .entertainment { color: var(--color-success); }
+    .health { color: var(--color-error); }
     
-    .probability-fill.business { background: linear-gradient(90deg, var(--color-info), #4A6FA5); }
-    .probability-fill.entertainment { background: linear-gradient(90deg, var(--color-brand-primary), var(--color-brand-secondary)); }
-    .probability-fill.health { background: linear-gradient(90deg, var(--color-error), #C45457); }
+    .prediction-badge.business { background: rgba(61, 90, 128, 0.1); border: 1px solid rgba(61, 90, 128, 0.2); }
+    .prediction-badge.entertainment { background: rgba(45, 90, 61, 0.1); border: 1px solid rgba(45, 90, 61, 0.2); }
+    .prediction-badge.health { background: rgba(166, 61, 64, 0.1); border: 1px solid rgba(166, 61, 64, 0.2); }
     
-    /* Text Preview */
-    .text-preview {
-        margin-top: var(--space-lg);
-        padding-top: var(--space-lg);
-        border-top: 1px solid var(--color-border-primary);
-    }
-    
-    .text-preview h3 {
-        font-family: var(--font-display);
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin: 0 0 var(--space-md);
-    }
-    
-    .text-preview-content {
-        padding: var(--space-md);
-        background: var(--color-bg-tertiary);
-        border-radius: var(--radius-sm);
-        font-size: 0.8125rem;
-        color: var(--color-text-secondary);
-        line-height: 1.6;
-        max-height: 150px;
-        overflow-y: auto;
-    }
-    
-    /* Model Info */
-    .model-info-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: var(--space-lg);
-    }
-    
-    @media (max-width: 640px) {
-        .model-info-grid { grid-template-columns: 1fr; }
-    }
-    
-    .model-info-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    
+    .probability-fill.business { background: var(--color-info); }
+    .probability-fill.entertainment { background: var(--color-brand-primary); }
+    .probability-fill.health { background: var(--color-error); }
+
+    /* Model Info Compact */
+    .model-info-grid { font-size: 0.85rem; }
     .model-info-list li {
         display: flex;
         align-items: center;
@@ -380,110 +224,150 @@
     .model-info-list li strong {
         color: var(--color-text-primary);
     }
-    
-    /* Error Alert */
-    .error-alert {
-        display: flex;
-        align-items: center;
-        gap: var(--space-md);
-        padding: var(--space-lg);
-        background: rgba(166, 61, 64, 0.1);
-        border: 1px solid var(--color-error);
-        border-radius: var(--radius-md);
-        color: var(--color-error);
+
+    /* Animations */
+    .result-card { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .classify-container:has(.result-card) { grid-template-columns: 1fr; }
+        .page-header { flex-direction: column; text-align: center; gap: 0.5rem; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="classify-page">
-    <!-- Page Header -->
+    
     <header class="page-header">
-        <div class="page-icon">
-            <i class="bi bi-tags"></i>
+        <div class="page-header-icon">
+            <i class="bi bi-tags-fill"></i>
         </div>
-        <h1>Document Classification</h1>
-        <p>Classify documents into Business, Entertainment, or Health categories</p>
+        <div class="page-header-text">
+            <h1>Document Classification</h1>
+            <p>Enter text below to categorize into Business, Entertainment, or Health.</p>
+        </div>
     </header>
     
-    <!-- Two-Column Layout -->
     <div class="classify-container">
-        <!-- Left Column: Form -->
+        
         <div class="form-column">
-            <!-- Classification Form -->
             <div class="classify-card">
                 <div class="card-header">
-                    <i class="bi bi-file-text"></i>
-                    <h2>Enter Text to Classify</h2>
+                    <i class="bi bi-pencil-square"></i>
+                    <h2>Input Text</h2>
                 </div>
                 <div class="card-body">
                     <form action="{{ url_for('classify') }}" method="POST">
                         <textarea class="classify-textarea" name="text" 
-                                  placeholder="Paste or type your document text here...">{{ text if text else '' }}</textarea>
+                                  placeholder="Paste article or document text here...">{{ text if text else '' }}</textarea>
                         
                         <div class="classify-actions">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-cpu"></i>
-                                <span>Classify</span>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-cpu"></i> Classify
                             </button>
                             <button type="button" class="btn btn-secondary" onclick="loadSampleText()">
-                                <i class="bi bi-lightning"></i>
-                                <span>Sample</span>
+                                <i class="bi bi-dice-3"></i> Sample
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
+
+            {% if model_info %}
+            <div class="classify-card" style="margin-top: var(--compact-gap);">
+                <div class="card-header">
+                    <i class="bi bi-sliders"></i>
+                    <h2>Model Information</h2>
+                </div>
+                <div class="card-body" style="padding-top: 0; padding-bottom: 0.5rem;">
+                    <ul class="model-info-list">
+                        <li>
+                            Status
+                            <strong>
+                                {% if model_info.status == 'Model loaded' %}
+                                    <span class="badge badge-success">Ready</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Not Loaded</span>
+                                {% endif %}
+                            </strong>
+                        </li>
+                        <li>Algorithm <strong>Multinomial Naive Bayes</strong></li>
+                        <li>
+                            Categories
+                            <strong>
+                                {% for cat in model_info.categories %}
+                                    <span class="badge badge-neutral">{{ cat }}</span>
+                                {% endfor %}
+                            </strong>
+                        </li>
+                    </ul>
+                    <ul class="model-info-list">
+                        <li>
+                            Training Accuracy
+                            <strong>
+                                {% if model_info.accuracy is defined and model_info.accuracy != 'N/A' %}
+                                    {{ (model_info.accuracy * 100)|round(1) }}%
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </strong>
+                        </li>
+                        <li>Training Samples <strong>{{ model_info.total_samples if model_info.total_samples is defined else 'N/A' }}</strong></li>
+                        <li>
+                            Trained
+                            <strong>
+                                {% if model_info.trained_at is defined and model_info.trained_at != 'N/A' %}
+                                    {{ model_info.trained_at[:10] }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
         </div>
         
-        <!-- Right Column: Results & Model Info -->
+        {% if result %}
         <div class="results-column">
-            <!-- Classification Result -->
-            {% if result %}
             <div class="classify-card result-card">
                 <div class="card-header">
-                    <i class="bi bi-graph-up"></i>
-                    <h2>Classification Result</h2>
+                    <i class="bi bi-graph-up-arrow"></i>
+                    <h2>Classification Results</h2>
                 </div>
                 <div class="card-body">
                     {% if result.error %}
                         <div class="error-alert">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            <span>{{ result.error }}</span>
+                            <i class="bi bi-exclamation-triangle"></i> {{ result.error }}
                         </div>
                     {% else %}
-                        <!-- Predicted Category -->
                         <div class="prediction-display">
-                            <div class="prediction-label">Predicted Category</div>
-                            <div class="prediction-badge {% if result.category == 'Business' %}business{% elif result.category == 'Entertainment' %}entertainment{% elif result.category == 'Health' %}health{% endif %}">
-                                {% if result.category == 'Business' %}
-                                    <i class="bi bi-briefcase"></i>
-                                {% elif result.category == 'Entertainment' %}
-                                    <i class="bi bi-film"></i>
-                                {% elif result.category == 'Health' %}
-                                    <i class="bi bi-heart-pulse"></i>
-                                {% endif %}
-                                {{ result.category }}
+                            <div>
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 4px;">Prediction</div>
+                                <div class="prediction-badge {% if result.category == 'Business' %}business{% elif result.category == 'Entertainment' %}entertainment{% elif result.category == 'Health' %}health{% endif %}">
+                                    {% if result.category == 'Business' %}<i class="bi bi-briefcase"></i>
+                                    {% elif result.category == 'Entertainment' %}<i class="bi bi-film"></i>
+                                    {% elif result.category == 'Health' %}<i class="bi bi-heart-pulse"></i>{% endif %}
+                                    {{ result.category }}
+                                </div>
                             </div>
-                            <div class="prediction-confidence">
-                                Confidence: <strong>{{ (result.confidence * 100)|round(1) }}%</strong>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--color-text-tertiary); margin-bottom: 4px;">Confidence</div>
+                                <div class="confidence-pill">
+                                    {{ (result.confidence * 100)|round(1) }}%
+                                </div>
                             </div>
                         </div>
                         
-                        <!-- Probability Distribution -->
-                        <div class="probability-section">
-                            <h3>Probability Distribution</h3>
+                        <div style="margin-bottom: 1rem;">
+                            <h3 style="font-size: 0.85rem; margin-bottom: 0.75rem;">Probability Breakdown</h3>
                             {% for category, prob in result.probabilities.items() %}
                             <div class="probability-item">
                                 <div class="probability-header">
                                     <span class="probability-category {% if category == 'Business' %}business{% elif category == 'Entertainment' %}entertainment{% elif category == 'Health' %}health{% endif %}">
-                                        {% if category == 'Business' %}
-                                            <i class="bi bi-briefcase"></i>
-                                        {% elif category == 'Entertainment' %}
-                                            <i class="bi bi-film"></i>
-                                        {% elif category == 'Health' %}
-                                            <i class="bi bi-heart-pulse"></i>
-                                        {% endif %}
                                         {{ category }}
                                     </span>
                                     <span class="probability-value">{{ (prob * 100)|round(1) }}%</span>
@@ -495,77 +379,20 @@
                             </div>
                             {% endfor %}
                         </div>
-                        
-                        <!-- Text Preview -->
+
                         {% if result.text_preview %}
-                        <div class="text-preview">
-                            <h3>Analyzed Text</h3>
-                            <div class="text-preview-content">{{ result.text_preview }}</div>
+                        <div class="text-preview" style="border-top: 1px solid var(--color-border-primary); padding-top: 1rem; margin-top: 0;">
+                            <h3 style="font-size: 0.85rem; margin-bottom: 0.5rem;">Analyzed Excerpt</h3>
+                            <div class="text-preview-content" style="font-size: 0.8rem; padding: 0.75rem; background: var(--color-bg-tertiary); border-radius: 6px;">
+                                {{ result.text_preview }}
+                            </div>
                         </div>
                         {% endif %}
                     {% endif %}
                 </div>
             </div>
-            {% endif %}
-            
-            <!-- Model Information -->
-            {% if model_info %}
-            <div class="classify-card">
-                <div class="card-header">
-                    <i class="bi bi-info-circle"></i>
-                    <h2>Model Information</h2>
-                </div>
-                <div class="card-body">
-                    <div class="model-info-grid">
-                        <ul class="model-info-list">
-                            <li>
-                                Status
-                                <strong>
-                                    {% if model_info.status == 'Model loaded' %}
-                                        <span class="badge badge-success">Ready</span>
-                                    {% else %}
-                                        <span class="badge badge-warning">Not Loaded</span>
-                                    {% endif %}
-                                </strong>
-                            </li>
-                            <li>Algorithm <strong>Multinomial Naive Bayes</strong></li>
-                            <li>
-                                Categories
-                                <strong>
-                                    {% for cat in model_info.categories %}
-                                        <span class="badge badge-neutral">{{ cat }}</span>
-                                    {% endfor %}
-                                </strong>
-                            </li>
-                        </ul>
-                        <ul class="model-info-list">
-                            <li>
-                                Training Accuracy
-                                <strong>
-                                    {% if model_info.accuracy is defined and model_info.accuracy != 'N/A' %}
-                                        {{ (model_info.accuracy * 100)|round(1) }}%
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </strong>
-                            </li>
-                            <li>Training Samples <strong>{{ model_info.total_samples if model_info.total_samples is defined else 'N/A' }}</strong></li>
-                            <li>
-                                Trained
-                                <strong>
-                                    {% if model_info.trained_at is defined and model_info.trained_at != 'N/A' %}
-                                        {{ model_info.trained_at[:10] }}
-                                    {% else %}
-                                        N/A
-                                    {% endif %}
-                                </strong>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
@@ -574,9 +401,9 @@
 <script>
 function loadSampleText() {
     const samples = [
-        "The Federal Reserve announced a quarter-point interest rate increase today, citing concerns about inflation. Stock markets reacted positively with the Dow Jones Industrial Average gaining 200 points. Economists predict this will impact mortgage rates and consumer lending in the coming months.",
-        "The new blockbuster superhero movie shattered box office records this weekend, earning over $300 million globally. Critics praised the stunning visual effects and compelling storyline. The film's director announced plans for a sequel to be released next summer.",
-        "Researchers at the medical center published groundbreaking findings on a new cancer treatment. Clinical trials showed a 60% improvement in patient outcomes compared to traditional therapies. The FDA is expected to review the treatment for approval early next year."
+        "The Federal Reserve announced a quarter-point interest rate increase today, citing concerns about inflation. Stock markets reacted positively with the Dow Jones.",
+        "The new blockbuster superhero movie shattered box office records this weekend, earning over $300 million globally. Critics praised the stunning visual effects.",
+        "Researchers at the medical center published findings on a new cancer treatment. Clinical trials showed a 60% improvement in patient outcomes."
     ];
     document.querySelector('textarea[name="text"]').value = samples[Math.floor(Math.random() * samples.length)];
 }

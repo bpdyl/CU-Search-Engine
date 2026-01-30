@@ -1,6 +1,6 @@
 {
-  "last_updated": "2026-01-24T15:39:50.371580",
-  "total_crawls": 2,
+  "last_updated": "2026-01-30T09:40:55.563692",
+  "total_crawls": 10,
   "summaries": [
     {
       "id": "crawl_1769245450",
@@ -561,6 +561,1441 @@
           "unique_publications_added": 75,
           "duplicates_skipped": 67,
           "pages_crawled": 3
+        },
+        "highest_duplicate_author": {
+          "name": "Elena Gaura",
+          "total_publications_found": 142,
+          "unique_publications_added": 75,
+          "duplicates_skipped": 67,
+          "pages_crawled": 3
+        }
+      }
+    },
+    {
+      "id": "crawl_1769611297",
+      "started_at": "2026-01-28T20:26:37.215219",
+      "completed_at": "2026-01-28T20:26:37.215219",
+      "duration_seconds": 0.0,
+      "duration_formatted": "0s",
+      "status": "failed",
+      "trigger": "scheduled",
+      "errors": [
+        "Working outside of request context.\n\nThis typically means that you attempted to use functionality that needed\nan active HTTP request. Consult the documentation on testing for\ninformation about how to avoid this problem."
+      ],
+      "overall_metrics": {
+        "total_publications_found": 0,
+        "unique_publications_indexed": 0,
+        "duplicates_detected": 0,
+        "co_authored_publications": 0,
+        "total_authors_crawled": 0,
+        "total_pages_crawled": 0,
+        "deduplication_rate": 0.0
+      },
+      "author_summaries": [],
+      "co_authorship_analysis": {
+        "total_co_authored": 0,
+        "publications": []
+      },
+      "statistics": {
+        "avg_publications_per_author": 0.0,
+        "avg_unique_per_author": 0.0,
+        "avg_pages_per_author": 1.0,
+        "most_prolific_author": null,
+        "highest_duplicate_author": null
+      }
+    },
+    {
+      "id": "crawl_1769611534",
+      "started_at": "2026-01-28T20:30:34.256602",
+      "completed_at": "2026-01-28T20:30:34.256602",
+      "duration_seconds": 0.0,
+      "duration_formatted": "0s",
+      "status": "failed",
+      "trigger": "scheduled",
+      "errors": [
+        "log_message() takes 1 positional argument but 2 were given"
+      ],
+      "overall_metrics": {
+        "total_publications_found": 0,
+        "unique_publications_indexed": 0,
+        "duplicates_detected": 0,
+        "co_authored_publications": 0,
+        "total_authors_crawled": 0,
+        "total_pages_crawled": 0,
+        "deduplication_rate": 0.0
+      },
+      "author_summaries": [],
+      "co_authorship_analysis": {
+        "total_co_authored": 0,
+        "publications": []
+      },
+      "statistics": {
+        "avg_publications_per_author": 0.0,
+        "avg_unique_per_author": 0.0,
+        "avg_pages_per_author": 1.0,
+        "most_prolific_author": null,
+        "highest_duplicate_author": null
+      }
+    },
+    {
+      "id": "crawl_1769611737",
+      "started_at": "2026-01-28T20:33:57.339360",
+      "completed_at": "2026-01-28T20:34:25.000974",
+      "duration_seconds": 27.661614,
+      "duration_formatted": "27s",
+      "status": "completed_with_warnings",
+      "trigger": "scheduled",
+      "errors": [
+        "No publications found"
+      ],
+      "overall_metrics": {
+        "total_publications_found": 0,
+        "unique_publications_indexed": 0,
+        "duplicates_detected": 0,
+        "co_authored_publications": 0,
+        "total_authors_crawled": 0,
+        "total_pages_crawled": 0,
+        "deduplication_rate": 0.0
+      },
+      "author_summaries": [],
+      "co_authorship_analysis": {
+        "total_co_authored": 0,
+        "publications": []
+      },
+      "statistics": {
+        "avg_publications_per_author": 0.0,
+        "avg_unique_per_author": 0.0,
+        "avg_pages_per_author": 1.0,
+        "most_prolific_author": null,
+        "highest_duplicate_author": null
+      }
+    },
+    {
+      "id": "crawl_1769611862",
+      "started_at": "2026-01-28T20:36:02.726726",
+      "completed_at": "2026-01-28T20:36:58.577145",
+      "duration_seconds": 55.850419,
+      "duration_formatted": "55s",
+      "status": "failed",
+      "trigger": "scheduled",
+      "errors": [
+        "Message: timeout: Timed out receiving message from renderer: 30.000\n  (Session info: chrome=144.0.7559.97)\nStacktrace:\nSymbols not available. Dumping unresolved backtrace:\n\t0x7ff67fe3a535\n\t0x7ff67fe3a590\n\t0x7ff67fbe10bd\n\t0x7ff67fbcdda9\n\t0x7ff67fbcda91\n\t0x7ff67fbcb6a7\n\t0x7ff67fbcbfff\n\t0x7ff67fbdb45a\n\t0x7ff67fbf2387\n\t0x7ff67fbf9a8a\n\t0x7ff67fbcc7c1\n\t0x7ff67fbf20b4\n\t0x7ff67fc89dbd\n\t0x7ff67fc2cc9c\n\t0x7ff67fc2dbe3\n\t0x7ff680117b60\n\t0x7ff680111f5d\n\t0x7ff68013311a\n\t0x7ff67fe560a5\n\t0x7ff67fe5e73c\n\t0x7ff67fe43844\n\t0x7ff67fe439f6\n\t0x7ff67fe29a07\n\t0x7ffdbd84e8d7\n\t0x7ffdbed6c53c\n"
+      ],
+      "overall_metrics": {
+        "total_publications_found": 0,
+        "unique_publications_indexed": 0,
+        "duplicates_detected": 0,
+        "co_authored_publications": 0,
+        "total_authors_crawled": 0,
+        "total_pages_crawled": 0,
+        "deduplication_rate": 0.0
+      },
+      "author_summaries": [],
+      "co_authorship_analysis": {
+        "total_co_authored": 0,
+        "publications": []
+      },
+      "statistics": {
+        "avg_publications_per_author": 0.0,
+        "avg_unique_per_author": 0.0,
+        "avg_pages_per_author": 1.0,
+        "most_prolific_author": null,
+        "highest_duplicate_author": null
+      }
+    },
+    {
+      "id": "crawl_1769612052",
+      "started_at": "2026-01-28T20:39:12.740315",
+      "completed_at": "2026-01-28T20:39:41.534559",
+      "duration_seconds": 28.794244,
+      "duration_formatted": "28s",
+      "status": "completed_with_warnings",
+      "trigger": "scheduled",
+      "errors": [
+        "No publications found"
+      ],
+      "overall_metrics": {
+        "total_publications_found": 0,
+        "unique_publications_indexed": 0,
+        "duplicates_detected": 0,
+        "co_authored_publications": 0,
+        "total_authors_crawled": 0,
+        "total_pages_crawled": 0,
+        "deduplication_rate": 0.0
+      },
+      "author_summaries": [],
+      "co_authorship_analysis": {
+        "total_co_authored": 0,
+        "publications": []
+      },
+      "statistics": {
+        "avg_publications_per_author": 0.0,
+        "avg_unique_per_author": 0.0,
+        "avg_pages_per_author": 1.0,
+        "most_prolific_author": null,
+        "highest_duplicate_author": null
+      }
+    },
+    {
+      "id": "crawl_1769612145",
+      "started_at": "2026-01-28T20:40:45.879896",
+      "completed_at": "2026-01-28T21:00:58.635634",
+      "duration_seconds": 1212.755738,
+      "duration_formatted": "20m 12s",
+      "status": "completed",
+      "trigger": "manual",
+      "errors": [],
+      "overall_metrics": {
+        "total_publications_found": 12,
+        "unique_publications_indexed": 11,
+        "duplicates_detected": 1,
+        "co_authored_publications": 1,
+        "total_authors_crawled": 21,
+        "total_pages_crawled": 21,
+        "deduplication_rate": 8.33
+      },
+      "author_summaries": [
+        {
+          "name": "Sokipriala Solomon Jonah",
+          "total_publications_found": 4,
+          "unique_publications_added": 4,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Faizan Ahmed",
+          "total_publications_found": 2,
+          "unique_publications_added": 2,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Dan Flood, MA BSc(Hons) FHEA",
+          "total_publications_found": 2,
+          "unique_publications_added": 2,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Opeoluwa Akinseloyin",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Muhammad Ibrahim Khan",
+          "total_publications_found": 1,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Uzma Shafiq",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Haili Ye",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Karthik Bangalore Muniraju",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Fatema Mahmoud Salama Elgebali",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Ihsan Ul Haq",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Iqra Jilani",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Abhishek Kallarappayi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Taliqa Muhib",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Mashaal Nageen",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Bivin Pradeep",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Adeen Jawad Qazi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Supriya Roy",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Mohamad Hasan Sohan Ajini",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Julia Wieczorek",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Suleiman Adamu Yakubu",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Cong Zhou",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        }
+      ],
+      "co_authorship_analysis": {
+        "total_co_authored": 1,
+        "publications": [
+          {
+            "title": "learning from less: sindy surrogates in rl",
+            "shared_by_authors": [
+              "Faizan Ahmed",
+              "Muhammad Ibrahim Khan"
+            ],
+            "author_count": 2
+          }
+        ]
+      },
+      "statistics": {
+        "avg_publications_per_author": 0.57,
+        "avg_unique_per_author": 0.52,
+        "avg_pages_per_author": 1.0,
+        "most_prolific_author": {
+          "name": "Sokipriala Solomon Jonah",
+          "total_publications_found": 4,
+          "unique_publications_added": 4,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        "highest_duplicate_author": {
+          "name": "Muhammad Ibrahim Khan",
+          "total_publications_found": 1,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        }
+      }
+    },
+    {
+      "id": "crawl_1769657763",
+      "started_at": "2026-01-29T09:21:03.196191",
+      "completed_at": "2026-01-29T10:10:34.714125",
+      "duration_seconds": 2971.517934,
+      "duration_formatted": "49m 31s",
+      "status": "completed",
+      "trigger": "manual",
+      "errors": [],
+      "overall_metrics": {
+        "total_publications_found": 368,
+        "unique_publications_indexed": 291,
+        "duplicates_detected": 77,
+        "co_authored_publications": 75,
+        "total_authors_crawled": 47,
+        "total_pages_crawled": 52,
+        "deduplication_rate": 20.92
+      },
+      "author_summaries": [
+        {
+          "name": "Elena Gaura",
+          "total_publications_found": 142,
+          "unique_publications_added": 75,
+          "duplicates_skipped": 67,
+          "pages_crawled": 3
+        },
+        {
+          "name": "James Brusey",
+          "total_publications_found": 115,
+          "unique_publications_added": 113,
+          "duplicates_skipped": 2,
+          "pages_crawled": 3
+        },
+        {
+          "name": "Matthew England",
+          "total_publications_found": 91,
+          "unique_publications_added": 86,
+          "duplicates_skipped": 5,
+          "pages_crawled": 2
+        },
+        {
+          "name": "Rashid Barket",
+          "total_publications_found": 6,
+          "unique_publications_added": 6,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Michael Ajao-olarinoye",
+          "total_publications_found": 4,
+          "unique_publications_added": 4,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Faizan Ahmed",
+          "total_publications_found": 2,
+          "unique_publications_added": 2,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Aniket Dixit",
+          "total_publications_found": 2,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 2,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Dan Flood, MA BSc(Hons) FHEA",
+          "total_publications_found": 2,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Opeoluwa Akinseloyin",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Emran Ali",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Abiola Babatunde",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Sivasharmini Ganeshamoorthy",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Herimampionona Andriniaina",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Kinza Arshad",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Karthik Bangalore Muniraju",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Fatema Mahmoud Salama Elgebali",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Abdorasoul Ghasemi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Stephan Goerttler",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Raj Gunawardena",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Alison Halford",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Ihsan Ul Haq",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Fei He",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Iqra Jilani",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Sokipriala Solomon Jonah",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Abhishek Kallarappayi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Sakkarin Karoonwong",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Kartik Kartik",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Muhammad Ibrahim Khan",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Ruchita Mehta",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Taliqa Muhib",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Mashaal Nageen",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Shruti Suresh Nair",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Theophilus Nasali",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Vu Trung Nguyen",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "David Oyebisi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Vasile Palade",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Bivin Pradeep",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Adeen Jawad Qazi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Supriya Roy",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "AmirHosein Sadeghimanesh",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Uzma Shafiq",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Mohamad Hasan Sohan Ajini",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Julia Wieczorek",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Kaidong Wu",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Suleiman Adamu Yakubu",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Haili Ye",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Cong Zhou",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        }
+      ],
+      "co_authorship_analysis": {
+        "total_co_authored": 75,
+        "publications": [
+          {
+            "title": "learning from less: sindy surrogates in rl",
+            "shared_by_authors": [
+              "Faizan Ahmed",
+              "James Brusey",
+              "Aniket Dixit"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "reinforcement learning for building control: direct actuator or pid-mediated control?",
+            "shared_by_authors": [
+              "Faizan Ahmed",
+              "James Brusey",
+              "Aniket Dixit"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "symbolic integration algorithm selection with machine learning: lstms vs tree lstms",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "the liouville generator for producing integrable expressions",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "transformers to predict the applicability of symbolic integration routines",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "generating elementary integrable expressions",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "machine learning for computer algebra",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "differential radial basis function network for sequence modelling",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "fast, detailed, accurate simulation of a thermal car-cabin using machine-learning",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "off the boil? the challenges of monitoring cooking behaviour in refugee settlements",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "understanding household fuel choice behaviour in the amazonas state, brazil: effects of validation and feature selection",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "a dynamic linear model for heteroscedastic lda under class imbalance",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "heartbeat design for energy-aware iot: are your sensors alive?",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "an event-triggered machine learning approach for accelerometer-based fall detection",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "linear dimensionality reduction for classification via a sequential bayes error minimisation with an application to flow meter diagnostics",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "modelling uncontrolled solar drying of mango waste",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "reinforcement learning-based thermal comfort control for vehicle cabins",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "linear classifier design for heteroscedastic lda under class imbalance",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "linear classifier design under heteroscedasticity in linear discriminant analysis",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "proof of concept of wireless ters monitoring",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          }
+        ]
+      },
+      "statistics": {
+        "avg_publications_per_author": 7.83,
+        "avg_unique_per_author": 6.19,
+        "avg_pages_per_author": 1.11,
+        "most_prolific_author": {
+          "name": "Elena Gaura",
+          "total_publications_found": 142,
+          "unique_publications_added": 75,
+          "duplicates_skipped": 67,
+          "pages_crawled": 3
+        },
+        "highest_duplicate_author": {
+          "name": "Elena Gaura",
+          "total_publications_found": 142,
+          "unique_publications_added": 75,
+          "duplicates_skipped": 67,
+          "pages_crawled": 3
+        }
+      }
+    },
+    {
+      "id": "crawl_1769739621",
+      "started_at": "2026-01-30T08:05:21.108599",
+      "completed_at": "2026-01-30T09:40:43.884774",
+      "duration_seconds": 5722.776175,
+      "duration_formatted": "1h 35m",
+      "status": "completed",
+      "trigger": "manual",
+      "errors": [],
+      "overall_metrics": {
+        "total_publications_found": 752,
+        "unique_publications_indexed": 642,
+        "duplicates_detected": 110,
+        "co_authored_publications": 103,
+        "total_authors_crawled": 46,
+        "total_pages_crawled": 57,
+        "deduplication_rate": 14.63
+      },
+      "author_summaries": [
+        {
+          "name": "Vasile Palade",
+          "total_publications_found": 200,
+          "unique_publications_added": 191,
+          "duplicates_skipped": 9,
+          "pages_crawled": 5
+        },
+        {
+          "name": "Elena Gaura",
+          "total_publications_found": 142,
+          "unique_publications_added": 75,
+          "duplicates_skipped": 67,
+          "pages_crawled": 3
+        },
+        {
+          "name": "James Brusey",
+          "total_publications_found": 115,
+          "unique_publications_added": 113,
+          "duplicates_skipped": 2,
+          "pages_crawled": 3
+        },
+        {
+          "name": "Matthew England",
+          "total_publications_found": 91,
+          "unique_publications_added": 86,
+          "duplicates_skipped": 5,
+          "pages_crawled": 2
+        },
+        {
+          "name": "Abdorasoul Ghasemi",
+          "total_publications_found": 65,
+          "unique_publications_added": 65,
+          "duplicates_skipped": 0,
+          "pages_crawled": 2
+        },
+        {
+          "name": "Fei He",
+          "total_publications_found": 65,
+          "unique_publications_added": 54,
+          "duplicates_skipped": 11,
+          "pages_crawled": 2
+        },
+        {
+          "name": "Alison Halford",
+          "total_publications_found": 31,
+          "unique_publications_added": 21,
+          "duplicates_skipped": 10,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Stephan Goerttler",
+          "total_publications_found": 7,
+          "unique_publications_added": 7,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Rashid Barket",
+          "total_publications_found": 6,
+          "unique_publications_added": 6,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Raj Gunawardena",
+          "total_publications_found": 6,
+          "unique_publications_added": 6,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Michael Ajao-olarinoye",
+          "total_publications_found": 4,
+          "unique_publications_added": 4,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Sokipriala Solomon Jonah",
+          "total_publications_found": 4,
+          "unique_publications_added": 3,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Faizan Ahmed",
+          "total_publications_found": 2,
+          "unique_publications_added": 2,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Aniket Dixit",
+          "total_publications_found": 2,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 2,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Dan Flood, MA BSc(Hons) FHEA",
+          "total_publications_found": 2,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Ruchita Mehta",
+          "total_publications_found": 2,
+          "unique_publications_added": 2,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "David Oyebisi",
+          "total_publications_found": 2,
+          "unique_publications_added": 2,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Opeoluwa Akinseloyin",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Emran Ali",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Abiola Babatunde",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Muhammad Ibrahim Khan",
+          "total_publications_found": 1,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Shruti Suresh Nair",
+          "total_publications_found": 1,
+          "unique_publications_added": 1,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Haili Ye",
+          "total_publications_found": 1,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 1,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Herimampionona Andriniaina",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Kinza Arshad",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Karthik Bangalore Muniraju",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Fatema Mahmoud Salama Elgebali",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Ihsan Ul Haq",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Iqra Jilani",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Abhishek Kallarappayi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Sakkarin Karoonwong",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Kartik Kartik",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Taliqa Muhib",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Mashaal Nageen",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Theophilus Nasali",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Vu Trung Nguyen",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Bivin Pradeep",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Adeen Jawad Qazi",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Supriya Roy",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "AmirHosein Sadeghimanesh",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Uzma Shafiq",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Mohamad Hasan Sohan Ajini",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Julia Wieczorek",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Kaidong Wu",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Suleiman Adamu Yakubu",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        },
+        {
+          "name": "Cong Zhou",
+          "total_publications_found": 0,
+          "unique_publications_added": 0,
+          "duplicates_skipped": 0,
+          "pages_crawled": 1
+        }
+      ],
+      "co_authorship_analysis": {
+        "total_co_authored": 103,
+        "publications": [
+          {
+            "title": "learning from less: sindy surrogates in rl",
+            "shared_by_authors": [
+              "Faizan Ahmed",
+              "James Brusey",
+              "Aniket Dixit",
+              "Muhammad Ibrahim Khan"
+            ],
+            "author_count": 4
+          },
+          {
+            "title": "reinforcement learning for building control: direct actuator or pid-mediated control?",
+            "shared_by_authors": [
+              "Faizan Ahmed",
+              "James Brusey",
+              "Aniket Dixit"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "a hybrid physics-informed neural network: seird model for forecasting covid-19 intensive care unit demand in england",
+            "shared_by_authors": [
+              "Michael Ajao-olarinoye",
+              "Fei He",
+              "Vasile Palade"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "deep learning based forecasting of covid-19 hospitalisation in england: a comparative analysis",
+            "shared_by_authors": [
+              "Michael Ajao-olarinoye",
+              "Fei He",
+              "Vasile Palade"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "off the boil? the challenges of monitoring cooking behaviour in refugee settlements",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura",
+              "Alison Halford"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "eeg-gmacn: interpretable eeg graph mutual attention convolutional network",
+            "shared_by_authors": [
+              "Stephan Goerttler",
+              "Fei He",
+              "Haili Ye"
+            ],
+            "author_count": 3
+          },
+          {
+            "title": "a question-answering framework for automated abstract screening using large language models",
+            "shared_by_authors": [
+              "Opeoluwa Akinseloyin",
+              "Vasile Palade"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "symbolic integration algorithm selection with machine learning: lstms vs tree lstms",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "the liouville generator for producing integrable expressions",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "transformers to predict the applicability of symbolic integration routines",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "generating elementary integrable expressions",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "machine learning for computer algebra",
+            "shared_by_authors": [
+              "Rashid Barket",
+              "Matthew England"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "differential radial basis function network for sequence modelling",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "fast, detailed, accurate simulation of a thermal car-cabin using machine-learning",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "understanding household fuel choice behaviour in the amazonas state, brazil: effects of validation and feature selection",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "a dynamic linear model for heteroscedastic lda under class imbalance",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "heartbeat design for energy-aware iot: are your sensors alive?",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "an event-triggered machine learning approach for accelerometer-based fall detection",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "linear dimensionality reduction for classification via a sequential bayes error minimisation with an application to flow meter diagnostics",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          },
+          {
+            "title": "modelling uncontrolled solar drying of mango waste",
+            "shared_by_authors": [
+              "James Brusey",
+              "Elena Gaura"
+            ],
+            "author_count": 2
+          }
+        ]
+      },
+      "statistics": {
+        "avg_publications_per_author": 16.35,
+        "avg_unique_per_author": 13.96,
+        "avg_pages_per_author": 1.24,
+        "most_prolific_author": {
+          "name": "Vasile Palade",
+          "total_publications_found": 200,
+          "unique_publications_added": 191,
+          "duplicates_skipped": 9,
+          "pages_crawled": 5
         },
         "highest_duplicate_author": {
           "name": "Elena Gaura",

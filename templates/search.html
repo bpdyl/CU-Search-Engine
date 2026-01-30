@@ -157,12 +157,15 @@
     }
     
     .sort-option {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
         width: 100%;
         padding: var(--space-sm) var(--space-md);
         background: none;
         border: none;
         text-align: left;
+        text-decoration: none;
         color: var(--color-text-secondary);
         font-family: var(--font-body);
         font-size: 0.875rem;
@@ -178,6 +181,11 @@
     .sort-option.active {
         color: var(--color-brand-primary);
         font-weight: 500;
+        background: var(--color-brand-light);
+    }
+    
+    .sort-option i {
+        font-size: 0.75rem;
     }
     
     /* ========================================
@@ -520,6 +528,116 @@
     }
     
     /* ========================================
+       Pagination
+       ======================================== */
+    .pagination-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-md);
+        margin-top: var(--space-xl);
+        padding-top: var(--space-xl);
+        border-top: 1px solid var(--color-border-primary);
+    }
+    
+    .pagination-info {
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .pagination-info strong {
+        color: var(--color-text-primary);
+        font-weight: 600;
+    }
+    
+    .pagination {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .pagination-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 var(--space-sm);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        color: var(--color-text-secondary);
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+    
+    .pagination-btn:hover:not(.disabled):not(.active) {
+        background: var(--color-bg-tertiary);
+        border-color: var(--color-border-secondary);
+        color: var(--color-text-primary);
+    }
+    
+    .pagination-btn.active {
+        background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+        border-color: var(--color-brand-primary);
+        color: white;
+    }
+    
+    .pagination-btn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .pagination-ellipsis {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        color: var(--color-text-tertiary);
+    }
+    
+    .pagination-nav {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+    }
+    
+    .pagination-nav span {
+        display: none;
+    }
+    
+    /* Per-page selector */
+    .per-page-selector {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        font-size: 0.875rem;
+        color: var(--color-text-secondary);
+    }
+    
+    .per-page-selector select {
+        padding: var(--space-xs) var(--space-sm);
+        background: var(--color-bg-secondary);
+        border: 1px solid var(--color-border-primary);
+        border-radius: var(--radius-sm);
+        color: var(--color-text-primary);
+        font-family: var(--font-body);
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+    
+    .per-page-selector select:focus {
+        outline: none;
+        border-color: var(--color-brand-primary);
+    }
+    
+    /* ========================================
        Responsive
        ======================================== */
     @media (max-width: 640px) {
@@ -546,6 +664,21 @@
             flex-direction: column;
             align-items: flex-start;
             gap: var(--space-md);
+        }
+        
+        .pagination {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .pagination-nav span {
+            display: none;
+        }
+    }
+    
+    @media (min-width: 641px) {
+        .pagination-nav span {
+            display: inline;
         }
     }
 </style>
@@ -578,20 +711,38 @@
             <!-- Results Header -->
             <div class="results-header">
                 <div class="results-count">
-                    Found <strong>{{ results|length }}</strong> results for 
+                    {% if pagination.total > 0 %}
+                        Showing <strong>{{ ((pagination.page - 1) * pagination.per_page) + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total]|min }}</strong> 
+                        of <strong>{{ pagination.total }}</strong> results for 
+                    {% else %}
+                        Found <strong>{{ results|length }}</strong> results for 
+                    {% endif %}
                     "<span class="query-text">{{ query }}</span>"
                 </div>
                 
                 <div class="sort-dropdown">
                     <button class="sort-button">
                         <i class="bi bi-sort-down"></i>
-                        <span>Sort by Relevance</span>
+                        <span>Sort by: 
+                            {% if sort_by == 'year_desc' %}Year (Newest)
+                            {% elif sort_by == 'year_asc' %}Year (Oldest)
+                            {% else %}Relevance{% endif %}
+                        </span>
                         <i class="bi bi-chevron-down"></i>
                     </button>
                     <div class="sort-menu">
-                        <button class="sort-option active">Relevance</button>
-                        <button class="sort-option">Year (Newest)</button>
-                        <button class="sort-option">Year (Oldest)</button>
+                        <a href="{{ url_for('search', q=query, sort='relevance', per_page=pagination.per_page) }}" 
+                           class="sort-option {% if sort_by == 'relevance' %}active{% endif %}">
+                            <i class="bi bi-star{% if sort_by == 'relevance' %}-fill{% endif %}"></i> Relevance
+                        </a>
+                        <a href="{{ url_for('search', q=query, sort='year_desc', per_page=pagination.per_page) }}" 
+                           class="sort-option {% if sort_by == 'year_desc' %}active{% endif %}">
+                            <i class="bi bi-sort-down{% if sort_by == 'year_desc' %}-alt{% endif %}"></i> Year (Newest)
+                        </a>
+                        <a href="{{ url_for('search', q=query, sort='year_asc', per_page=pagination.per_page) }}" 
+                           class="sort-option {% if sort_by == 'year_asc' %}active{% endif %}">
+                            <i class="bi bi-sort-up{% if sort_by == 'year_asc' %}-alt{% endif %}"></i> Year (Oldest)
+                        </a>
                     </div>
                 </div>
             </div>
@@ -682,6 +833,84 @@
                 {% endfor %}
             </div>
             
+            <!-- Pagination -->
+            {% if pagination.total_pages > 1 %}
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Page <strong>{{ pagination.page }}</strong> of <strong>{{ pagination.total_pages }}</strong>
+                </div>
+                
+                <nav class="pagination" aria-label="Search results pagination">
+                    <!-- Previous Button -->
+                    {% if pagination.page > 1 %}
+                        <a href="{{ url_for('search', q=query, page=pagination.page-1, per_page=pagination.per_page, sort=sort_by) }}" 
+                           class="pagination-btn pagination-nav" aria-label="Previous page">
+                            <i class="bi bi-chevron-left"></i>
+                            <span>Previous</span>
+                        </a>
+                    {% else %}
+                        <span class="pagination-btn pagination-nav disabled">
+                            <i class="bi bi-chevron-left"></i>
+                            <span>Previous</span>
+                        </span>
+                    {% endif %}
+                    
+                    <!-- Page Numbers -->
+                    {% set start_page = [1, pagination.page - 2]|max %}
+                    {% set end_page = [pagination.total_pages, pagination.page + 2]|min %}
+                    
+                    {% if start_page > 1 %}
+                        <a href="{{ url_for('search', q=query, page=1, per_page=pagination.per_page, sort=sort_by) }}" 
+                           class="pagination-btn">1</a>
+                        {% if start_page > 2 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                    {% endif %}
+                    
+                    {% for p in range(start_page, end_page + 1) %}
+                        {% if p == pagination.page %}
+                            <span class="pagination-btn active">{{ p }}</span>
+                        {% else %}
+                            <a href="{{ url_for('search', q=query, page=p, per_page=pagination.per_page, sort=sort_by) }}" 
+                               class="pagination-btn">{{ p }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if end_page < pagination.total_pages %}
+                        {% if end_page < pagination.total_pages - 1 %}
+                            <span class="pagination-ellipsis">...</span>
+                        {% endif %}
+                        <a href="{{ url_for('search', q=query, page=pagination.total_pages, per_page=pagination.per_page, sort=sort_by) }}" 
+                           class="pagination-btn">{{ pagination.total_pages }}</a>
+                    {% endif %}
+                    
+                    <!-- Next Button -->
+                    {% if pagination.page < pagination.total_pages %}
+                        <a href="{{ url_for('search', q=query, page=pagination.page+1, per_page=pagination.per_page, sort=sort_by) }}" 
+                           class="pagination-btn pagination-nav" aria-label="Next page">
+                            <span>Next</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    {% else %}
+                        <span class="pagination-btn pagination-nav disabled">
+                            <span>Next</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </span>
+                    {% endif %}
+                </nav>
+                
+                <!-- Per-page selector -->
+                <div class="per-page-selector">
+                    <label for="per-page">Results per page:</label>
+                    <select id="per-page" onchange="changePerPage(this.value)">
+                        <option value="10" {% if pagination.per_page == 10 %}selected{% endif %}>10</option>
+                        <option value="20" {% if pagination.per_page == 20 %}selected{% endif %}>20</option>
+                        <option value="50" {% if pagination.per_page == 50 %}selected{% endif %}>50</option>
+                    </select>
+                </div>
+            </div>
+            {% endif %}
+            
         {% else %}
             <!-- No Results -->
             <div class="empty-state">
@@ -714,4 +943,16 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function changePerPage(perPage) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('per_page', perPage);
+    url.searchParams.set('page', '1');  // Reset to first page
+    // Sort parameter is already in URL if set, no need to change it
+    window.location.href = url.toString();
+}
+</script>
 {% endblock %}

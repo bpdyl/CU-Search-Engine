@@ -420,6 +420,16 @@ class PUREPortalCrawler:
             soup = self.get_page(current_url)
             if not soup:
                 break
+            # sometimes even if it is not initial request, the page may stuck in cloudflare verification 
+            # so we need to wait few seconds so that manual verification can be done
+            #todo : check if soup has cloudflare verification text and retry if needed
+            if 'Verifying you are human' in soup.text:
+                self.log(f"    Page {page_num}: {current_url} is stuck in cloudflare verification, retrying...")
+                time.sleep(10)
+                self.driver.get(current_url)
+                soup = BeautifulSoup(self.driver.page_source, 'html.parser')
+                if not soup:
+                    break
 
             # Extract publications from current page
             pubs = self.extract_publications_from_profile(soup, author_name, profile_url)

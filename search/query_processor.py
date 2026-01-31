@@ -188,8 +188,8 @@ class QueryProcessor:
             # Sort by year descending, then by score
             scored_docs.sort(key=lambda x: (self._get_year_for_sort(x[2]), x[0]), reverse=True)
         elif sort_by == 'year_asc':
-            # Sort by year ascending, then by score descending
-            scored_docs.sort(key=lambda x: (-self._get_year_for_sort(x[2]), -x[0]))
+            # Sort by year ascending (oldest first), then by score descending within same year
+            scored_docs.sort(key=lambda x: (self._get_year_for_sort(x[2]), -x[0]))
         else:
             # Default: sort by relevance score descending
             scored_docs.sort(key=lambda x: x[0], reverse=True)

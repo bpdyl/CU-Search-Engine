@@ -31,7 +31,7 @@ class QueryProcessor:
         self.preprocessor = TextPreprocessor(
             use_stemming=True,
             use_lemmatization=True,
-            expand_synonyms=True
+            expand_synonyms=False  # Disabled for performance - synonyms cause O(n) WordNet lookups
         )
         
         # Cache for partial matches (built lazily)
@@ -126,6 +126,11 @@ class QueryProcessor:
         # Parse query
         query_terms, original_terms = self.parse_query(query)
 
+        # Limit query terms to prevent performance degradation with very long queries
+        MAX_QUERY_TERMS = 15
+        if len(query_terms) > MAX_QUERY_TERMS:
+            query_terms = query_terms[:MAX_QUERY_TERMS]
+
         if not query_terms:
             return {'results': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 0}
 
@@ -144,8 +149,9 @@ class QueryProcessor:
             for doc_id, _, _ in postings:
                 doc_term_matches[doc_id].add(term)
 
-        # Limited partial matching (only if few exact matches)
-        if len(doc_term_matches) < 100:
+        # Limited partial matching (only if few exact matches AND short queries)
+        # Skip for long queries as they are already specific enough
+        if len(doc_term_matches) < 100 and len(query_terms) <= 5:
             all_terms = self.index.get_all_terms()
             for term in query_terms:
                 partial_matches = self._get_partial_matches_optimized(term, all_terms)
@@ -156,7 +162,7 @@ class QueryProcessor:
                             doc_term_matches[doc_id].add(term)
 
         candidate_docs = set(doc_term_matches.keys())
-        
+
         if not candidate_docs:
             return {'results': [], 'total': 0, 'page': 1, 'per_page': per_page, 'total_pages': 0}
 
@@ -167,14 +173,14 @@ class QueryProcessor:
         for doc_id in candidate_docs:
             doc = self.index.get_document(doc_id)
             if doc:
-                score = self.ranker.score_document(doc_id, query_terms, query_term_freqs)
-                
+                score = self.ranker.score_document(doc_id, query_terms, query_term_freqs, postings_cache)
+
                 # Boost score based on term coverage (use cached matches)
                 if num_query_terms > 1:
                     matched_terms = len(doc_term_matches[doc_id])
                     coverage = matched_terms / num_query_terms
                     score *= (1 + coverage)
-                
+
                 scored_docs.append((score, doc_id, doc))
 
         # Sort based on sort_by parameter
@@ -240,6 +246,11 @@ class QueryProcessor:
         # Parse query
         query_terms, original_terms = self.parse_query(query)
 
+        # Limit query terms to prevent performance degradation with very long queries
+        MAX_QUERY_TERMS = 15
+        if len(query_terms) > MAX_QUERY_TERMS:
+            query_terms = query_terms[:MAX_QUERY_TERMS]
+
         if not query_terms:
             return []
 
@@ -258,8 +269,8 @@ class QueryProcessor:
             for doc_id, _, _ in postings:
                 doc_term_matches[doc_id].add(term)
 
-        # Limited partial matching
-        if len(doc_term_matches) < 100:
+        # Limited partial matching (only for short queries)
+        if len(doc_term_matches) < 100 and len(query_terms) <= 5:
             all_terms = self.index.get_all_terms()
             for term in query_terms:
                 partial_matches = self._get_partial_matches_optimized(term, all_terms)
@@ -270,7 +281,7 @@ class QueryProcessor:
                             doc_term_matches[doc_id].add(term)
 
         candidate_docs = set(doc_term_matches.keys())
-        
+
         if not candidate_docs:
             return []
 
@@ -281,13 +292,13 @@ class QueryProcessor:
         for doc_id in candidate_docs:
             doc = self.index.get_document(doc_id)
             if doc:
-                score = self.ranker.score_document(doc_id, query_terms, query_term_freqs)
-                
+                score = self.ranker.score_document(doc_id, query_terms, query_term_freqs, postings_cache)
+
                 if num_query_terms > 1:
                     matched_terms = len(doc_term_matches[doc_id])
                     coverage = matched_terms / num_query_terms
                     score *= (1 + coverage)
-                
+
                 if len(top_k) < limit:
                     heapq.heappush(top_k, (score, doc_id, doc))
                 elif score > top_k[0][0]:

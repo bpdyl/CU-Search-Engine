@@ -52,7 +52,7 @@ class TFIDFRanker:
         """
         return self.index.get_idf(term)
 
-    def score_document(self, doc_id, query_terms, query_term_freqs):
+    def score_document(self, doc_id, query_terms, query_term_freqs, postings_cache=None):
         """
         Calculate TF-IDF score for a document given query terms.
 
@@ -60,6 +60,7 @@ class TFIDFRanker:
             doc_id: Document identifier
             query_terms: List of query terms
             query_term_freqs: Dict of term -> frequency in query
+            postings_cache: Optional pre-fetched postings {term: {doc_id: (freq, field)}}
 
         Returns:
             Document score
@@ -68,24 +69,29 @@ class TFIDFRanker:
         doc_length = self.index.doc_lengths.get(doc_id, 1)
 
         for term in query_terms:
-            # Get postings for term
-            postings = self.index.get_postings(term)
-
-            # Find this document in postings
-            for did, freq, field in postings:
-                if did == doc_id:
-                    # Calculate TF-IDF
+            # Use cached postings if available, otherwise fetch
+            if postings_cache and term in postings_cache:
+                doc_posting = postings_cache[term].get(doc_id)
+                if doc_posting:
+                    freq, field = doc_posting
                     tf = self.calculate_tf(freq, doc_length)
                     idf = self.calculate_idf(term)
                     query_tf = query_term_freqs.get(term, 1)
-
                     score += tf * idf * query_tf
-
-                    # Boost for title matches
                     if 'title' in field:
                         score *= 1.5
-
-                    break
+            else:
+                # Fallback to fetching postings
+                postings = self.index.get_postings(term)
+                for did, freq, field in postings:
+                    if did == doc_id:
+                        tf = self.calculate_tf(freq, doc_length)
+                        idf = self.calculate_idf(term)
+                        query_tf = query_term_freqs.get(term, 1)
+                        score += tf * idf * query_tf
+                        if 'title' in field:
+                            score *= 1.5
+                        break
 
         return score
 
@@ -129,7 +135,7 @@ class BM25Ranker:
         # BM25 IDF formula
         return math.log((N - df + 0.5) / (df + 0.5) + 1)
 
-    def score_document(self, doc_id, query_terms, query_term_freqs=None):
+    def score_document(self, doc_id, query_terms, query_term_freqs=None, postings_cache=None):
         """
         Calculate BM25 score for a document.
 
@@ -137,6 +143,7 @@ class BM25Ranker:
             doc_id: Document identifier
             query_terms: List of query terms
             query_term_freqs: Optional dict of term frequencies in query
+            postings_cache: Optional pre-fetched postings {term: {doc_id: (freq, field)}}
 
         Returns:
             BM25 score
@@ -155,16 +162,22 @@ class BM25Ranker:
             if idf == 0:
                 continue
 
-            # Get term frequency in document
+            # Get term frequency in document - use cache if available
             tf = 0
             field_match = ''
-            postings = self.index.get_postings(term)
 
-            for did, freq, field in postings:
-                if did == doc_id:
-                    tf = freq
-                    field_match = field
-                    break
+            if postings_cache and term in postings_cache:
+                doc_posting = postings_cache[term].get(doc_id)
+                if doc_posting:
+                    tf, field_match = doc_posting
+            else:
+                # Fallback to fetching postings
+                postings = self.index.get_postings(term)
+                for did, freq, field in postings:
+                    if did == doc_id:
+                        tf = freq
+                        field_match = field
+                        break
 
             if tf == 0:
                 continue
@@ -205,7 +218,7 @@ class HybridRanker:
         self.tfidf_weight = tfidf_weight
         self.bm25_weight = bm25_weight
 
-    def score_document(self, doc_id, query_terms, query_term_freqs):
+    def score_document(self, doc_id, query_terms, query_term_freqs, postings_cache=None):
         """
         Calculate hybrid score combining TF-IDF and BM25.
 
@@ -213,12 +226,13 @@ class HybridRanker:
             doc_id: Document identifier
             query_terms: List of query terms
             query_term_freqs: Dict of term frequencies in query
+            postings_cache: Optional pre-fetched postings {term: {doc_id: (freq, field)}}
 
         Returns:
             Combined score
         """
-        tfidf_score = self.tfidf.score_document(doc_id, query_terms, query_term_freqs)
-        bm25_score = self.bm25.score_document(doc_id, query_terms, query_term_freqs)
+        tfidf_score = self.tfidf.score_document(doc_id, query_terms, query_term_freqs, postings_cache)
+        bm25_score = self.bm25.score_document(doc_id, query_terms, query_term_freqs, postings_cache)
 
         return (self.tfidf_weight * tfidf_score) + (self.bm25_weight * bm25_score)
 
